@@ -141,8 +141,8 @@ AI-MALWARE-ANALYZER/
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/cyber-sentinel.git
-cd cyber-sentinel
+git clone https://github.com/yourusername/cybersentinel.git
+cd cybersentinel
 ```
 
 ---
