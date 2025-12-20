@@ -1,0 +1,35 @@
+# --- Security (CRITICAL) ---
+# This ignores the file where you store your API Keys.
+# (.env contains VIRUSTOTAL_API_KEY and GEMINI_API_KEY)
+.env
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Virtual Environment ---
+venv/
+env/
+.venv/
+
+# --- Database ---
+*.db
+*.sqlite
+*.sqlite3
+
+# --- IDE Settings ---
+.vscode/
+.idea/
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
+
+# --- Generated Outputs ---
+*.pdf
+*.log
+
+# --- Project Specifics ---
+temp/
+uploads/

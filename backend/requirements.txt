@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+google-genai
+python-multipart
+aiohttp
+requests
+reportlab
+pydantic
+python-dotenv
+pefile
+yara-python
