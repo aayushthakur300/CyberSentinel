@@ -1,216 +1,148 @@
-/* --- GLOBAL THEME --- */
-body {
-    background-color: #050505 !important; /* Vantablack */
-    font-family: 'Segoe UI', 'Roboto Mono', monospace; /* Tech feel */
+/* =========================================
+   1. GLOBAL THEME
+   ========================================= */
+:root {
+    --neon-green: #00ff41;
+    --neon-cyan: #0dcaf0;
+    --neon-red: #ff073a;
+    --neon-yellow: #ffeb3b;
+    --bg-dark: #050505;
+    --bg-panel: #0f0f0f;
+}
+
+html, body {
+    margin: 0;
+    font-family: 'Segoe UI', 'Roboto Mono', monospace;
+    background-color: var(--bg-dark) !important;
     color: #e0e0e0;
+    width: 100%;
+    /* FIX: Allow the whole page to scroll naturally */
+    height: auto !important; 
+    overflow-y: auto !important; 
+    overflow-x: hidden; 
+}
+
+body {
     background-image: 
         linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
-    background-size: 30px 30px; /* Cyber Grid Effect */
+    background-size: 30px 30px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure it fills at least the screen */
 }
 
-/* --- NAVBAR --- */
+/* =========================================
+   2. LAYOUT - UNLOCKED SCROLLING
+   ========================================= */
+.container-fluid.mt-3 {
+    flex: 1;
+    height: auto !important; /* Let content determine height */
+    overflow: visible !important;
+    padding-bottom: 50px;
+}
+
+.row.g-3 {
+    height: auto !important; /* Let row grow with columns */
+}
+
+/* COLUMNS: No longer fixed height. They grow with content. */
+.col-lg-4, .col-lg-8,
+.col-lg-5, .col-lg-7 {
+    height: auto !important;
+    overflow: visible !important; /* Disable inner scrollbar, use main page scroll */
+    display: block;
+    margin-bottom: 20px;
+}
+
+/* =========================================
+   3. CONTENT ELEMENTS (Tall & Visible)
+   ========================================= */
+/* Code Input: Tall enough to be useful, but part of the page flow */
+#codeInput {
+    background-color: #000 !important;
+    color: var(--neon-green) !important;
+    border: 1px solid #333 !important;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.9rem;
+    padding: 15px;
+    resize: vertical; 
+    min-height: 600px !important; /* Tall box */
+}
+
+/* Chat History: Shows ALL text */
+#chatHistory {
+    background: #020202;
+    border: 1px solid #222;
+    border-radius: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.85rem;
+    padding: 10px;
+    height: auto !important;      /* Grows with text */
+    max-height: none !important;  
+    overflow: visible !important; 
+}
+
+/* Cards grow to fit content */
+.card {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid #333 !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    height: auto !important;
+}
+
+/* =========================================
+   4. NAVBAR & VISUALS
+   ========================================= */
 .navbar {
     background: rgba(10, 10, 10, 0.95) !important;
-    border-bottom: 1px solid #00ff41 !important; /* Matrix Green border */
+    border-bottom: 1px solid var(--neon-green) !important;
     box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+    position: sticky; /* Keeps navbar at top while you scroll page */
+    top: 0;
+    z-index: 1000;
 }
 
 .navbar-brand {
     font-family: 'Courier New', monospace;
     letter-spacing: 2px;
-    text-shadow: 0 0 5px #00ff41;
+    text-shadow: 0 0 5px var(--neon-green);
+    font-weight: bold;
 }
 
-/* --- CARDS & PANELS --- */
-.card {
-    background-color: #0f0f0f !important;
-    border: 1px solid #333 !important;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    transition: all 0.3s ease;
-}
+.card:hover { border-color: var(--neon-green) !important; }
+.card-header { border-bottom: 1px solid #222 !important; background: rgba(255, 255, 255, 0.02) !important; }
 
-.card:hover {
-    border-color: #00ff41 !important; /* Green glow on hover */
-    box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
-    transform: translateY(-2px);
-}
+#chatHistory .badge { white-space: pre-wrap; text-align: left; line-height: 1.5; }
+#chatHistory .badge.bg-primary { background: rgba(0, 77, 64, 0.8) !important; color: #00ffcc; border: 1px solid #00ffcc; float: right; clear: both; margin-bottom: 8px; }
+#chatHistory .badge.bg-secondary { background: rgba(33, 37, 41, 0.9) !important; color: var(--neon-cyan); border: 1px solid var(--neon-cyan); float: left; clear: both; margin-bottom: 8px; }
 
-.card-header {
-    border-bottom: 1px solid #222 !important;
-    background: rgba(255, 255, 255, 0.02) !important;
-}
+#riskScoreDisplay { font-family: 'Impact', sans-serif; letter-spacing: 2px; text-shadow: 0 0 15px currentColor; line-height: 1; }
+.text-danger { color: var(--neon-red) !important; text-shadow: 0 0 8px var(--neon-red); }
+.text-warning { color: var(--neon-yellow) !important; text-shadow: 0 0 8px var(--neon-yellow); }
+.text-success { color: var(--neon-green) !important; text-shadow: 0 0 8px var(--neon-green); }
+.text-info { color: var(--neon-cyan) !important; text-shadow: 0 0 8px var(--neon-cyan); }
 
-/* --- CODE INPUT (THE "TERMINAL") --- */
-#codeInput {
-    background-color: #000 !important;
-    color: #00ff41 !important; /* Matrix Green Text */
-    border: 1px solid #333 !important;
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 0.9rem;
-    padding: 15px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+/* =========================================
+   5. TICKER
+   ========================================= */
+.threat-ticker-container {
+    background: #000;
+    border-top: 1px solid #ff073a;
+    display: flex;
+    overflow: hidden;
+    height: 30px;
+    align-items: center;
+    margin-top: auto; /* Pushes to bottom of page */
 }
+.threat-label { background: #ff073a; color: white; padding: 0 10px; font-weight: bold; font-size: 0.8rem; z-index: 10; }
+.threat-marquee { white-space: nowrap; animation: marquee 20s linear infinite; padding-left: 100%; color: #ff073a; font-family: monospace; }
+@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+.status-dot-live { width: 10px; height: 10px; background: #00ff41; border-radius: 50%; box-shadow: 0 0 10px #00ff41; animation: blink 1s infinite; }
 
-#codeInput:focus {
-    outline: none;
-    border-color: #00ff41 !important;
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.3), inset 0 0 10px rgba(0,0,0,0.8);
-}
-
-#codeInput::placeholder {
-    color: #004d1a; /* Dark green placeholder */
-    font-style: italic;
-}
-
-/* --- BUTTONS (CYBER STYLE) --- */
-.btn-primary {
-    background: transparent !important;
-    border: 1px solid #00ff41 !important;
-    color: #00ff41 !important;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: 0.2s;
-}
-
-.btn-primary:hover, .btn-primary:active {
-    background: #00ff41 !important;
-    color: #000 !important;
-    box-shadow: 0 0 15px #00ff41;
-}
-
-.btn-outline-warning {
-    border-color: #ffc107;
-    color: #ffc107;
-}
-
-.btn-outline-warning:hover {
-    background: #ffc107;
-    color: #000;
-    box-shadow: 0 0 15px #ffc107;
-}
-
-/* --- CHAT INTERFACE (NEW) --- */
-#chatHistory {
-    background: #050505;
-    border: 1px solid #222;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.85rem;
-    padding: 10px;
-    /* Custom Scrollbar for Chat */
-    scrollbar-width: thin;
-    scrollbar-color: #333 #000;
-}
-
-#chatInput {
-    background: #111 !important;
-    border: 1px solid #333 !important;
-    color: #fff !important;
-}
-
-#chatInput:focus {
-    border-color: #0dcaf0 !important; /* Cyan focus */
-}
-
-/* Chat Bubbles */
-#chatHistory .badge.bg-primary {
-    background: #004d40 !important; /* Dark Teal for User */
-    color: #00ffcc;
-    border: 1px solid #00ffcc;
-}
-
-#chatHistory .badge.bg-secondary {
-    background: #1a1a1a !important; /* Dark Grey for AI */
-    color: #0dcaf0;
-    border: 1px solid #0dcaf0;
-    text-align: left;
-    white-space: pre-wrap; /* Preserve formatting */
-}
-
-/* --- RADAR CHART (ATTACK VECTOR) --- */
-/* The canvas itself handles the lines, but we frame the container */
-#attackChart {
-    filter: drop-shadow(0 0 5px rgba(13, 202, 240, 0.3)); /* Cyan glow around chart */
-}
-
-/* --- RISK SCORE & BADGES --- */
-#riskScoreDisplay {
-    font-family: 'Impact', sans-serif;
-    letter-spacing: 2px;
-    text-shadow: 0 0 10px currentColor; /* Glows with its own color */
-}
-
-.text-danger { color: #ff073a !important; text-shadow: 0 0 10px #ff073a; }
-.text-warning { color: #ffeb3b !important; text-shadow: 0 0 10px #ffeb3b; }
-.text-success { color: #00ff41 !important; text-shadow: 0 0 10px #00ff41; }
-
-.badge {
-    border-radius: 2px; /* Square "military" edges */
-    font-weight: normal;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-}
-
-/* --- AI EXPLANATION --- */
-.ai-output h2 {
-    color: #0dcaf0;
-    border-left: 3px solid #0dcaf0;
-    padding-left: 10px;
-    margin-top: 20px;
-    text-transform: uppercase;
-    font-size: 1.1rem;
-    letter-spacing: 1px;
-}
-
-.ai-output p {
-    color: #aaa;
-    margin-bottom: 10px;
-}
-
-.ai-output ul li {
-    color: #ccc;
-    list-style-type: square; 
-}
-
-/* --- SPINNER ANIMATION --- */
-.spinner-border {
-    width: 4rem;
-    height: 4rem;
-    border-width: 0.25em;
-    border-color: #00ff41 transparent #00ff41 transparent;
-    animation: spinner-border .75s linear infinite;
-    filter: drop-shadow(0 0 5px #00ff41);
-}
-
-/* Custom scrollbar for chat history */
-#chatHistory::-webkit-scrollbar {
-    width: 5px;
-}
-#chatHistory::-webkit-scrollbar-thumb {
-    background: #0dcaf0;
-    border-radius: 10px;
-}
-
-/* Chat bubble styling */
-.chat-message {
-    margin-bottom: 1rem;
-    max-width: 90%;
-    padding: 10px 14px;
-    border-radius: 12px;
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-.user-message {
-    background: #0d6efd;
-    color: white;
-    align-self: flex-end;
-    margin-left: auto;
-}
-
-.bot-message {
-    background: #2b2f33;
-    color: #e0e0e0;
-    border: 1px solid #444;
-    align-self: flex-start;
-}
+/* =========================================
+   6. SCROLLBAR (Main Window)
+   ========================================= */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: #333; border: 1px solid #00ff41; border-radius: 5px; }

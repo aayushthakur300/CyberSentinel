@@ -1,0 +1,368 @@
+css before features
+/* =========================================
+   1. GLOBAL THEME (APPLIES TO ALL PAGES)
+   ========================================= */
+:root {
+    --neon-green: #00ff41;
+    --neon-cyan: #0dcaf0;
+    --neon-red: #ff073a;
+    --neon-yellow: #ffeb3b;
+    --bg-dark: #050505;
+    --bg-panel: #0f0f0f;
+}
+
+/* DEFAULT STATE: Allow scrolling (For Dashboard) */
+html, body {
+    margin: 0;
+    font-family: 'Segoe UI', 'Roboto Mono', monospace;
+    background-color: var(--bg-dark) !important;
+    color: #e0e0e0;
+    overflow-x: hidden; /* Prevent horizontal scroll only */
+    /* REMOVED: height: 100% and overflow: hidden */
+}
+
+body {
+    background-image: 
+        linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+/* =========================================
+   2. VAULT MODE (APP ONLY)
+   ========================================= */
+/* This class locks the screen for the Analysis App */
+body.vault-mode {
+    height: 100vh;      /* Force full viewport height */
+    overflow: hidden;   /* Disable main window scrollbar */
+}
+
+/* Adjust layout ONLY when in Vault Mode */
+body.vault-mode .container-fluid.h-100 {
+    height: calc(100% - 58px) !important; /* Height minus navbar */
+    padding-bottom: 0 !important;
+}
+
+/* FORCE SCROLL ON SPLIT SCREEN COLUMNS (Vault Mode Only) */
+body.vault-mode .col-lg-5, 
+body.vault-mode .col-lg-7 {
+    height: 100%;          /* Fill vertical space */
+    overflow-y: auto;      /* Enable independent scrolling */
+    padding-bottom: 2rem;  /* Space at bottom for scrolling comfort */
+}
+
+/* =========================================
+   3. CUSTOM SCROLLBAR
+   ========================================= */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #000;
+}
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+    border: 1px solid #000;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-green);
+}
+
+/* =========================================
+   4. NAVBAR
+   ========================================= */
+.navbar {
+    background: rgba(10, 10, 10, 0.95) !important;
+    border-bottom: 1px solid var(--neon-green) !important;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+    z-index: 1000;
+}
+
+.navbar-brand {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+    text-shadow: 0 0 5px var(--neon-green);
+    font-weight: bold;
+}
+
+/* =========================================
+   5. CARDS & INPUTS
+   ========================================= */
+.card {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid #333 !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    transition: border-color 0.3s ease;
+}
+
+.card:hover {
+    border-color: var(--neon-green) !important;
+}
+
+.card-header {
+    border-bottom: 1px solid #222 !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+#codeInput {
+    background-color: #000 !important;
+    color: var(--neon-green) !important;
+    border: 1px solid #333 !important;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.9rem;
+    padding: 15px;
+    resize: none; 
+}
+
+#codeInput:focus {
+    outline: none;
+    border-color: var(--neon-green) !important;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+}
+
+#dropZone:hover {
+    border-color: var(--neon-green) !important;
+    background-color: rgba(0, 255, 65, 0.05) !important;
+}
+
+/* =========================================
+   6. CHAT AREA
+   ========================================= */
+#chatHistory {
+    background: #020202;
+    border: 1px solid #222;
+    border-radius: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.85rem;
+    overflow-y: auto; 
+    max-height: 400px;
+}
+
+#chatInput {
+    background: #111 !important;
+    border: 1px solid #333 !important;
+    color: #fff !important;
+}
+
+#chatInput:focus {
+    border-color: var(--neon-cyan) !important;
+}
+
+#chatHistory .badge {
+    white-space: pre-wrap;
+    text-align: left;
+    line-height: 1.5;
+}
+
+#chatHistory .badge.bg-primary {
+    background: rgba(0, 77, 64, 0.8) !important;
+    color: #00ffcc;
+    border: 1px solid #00ffcc;
+    float: right;
+    clear: both;
+    margin-bottom: 8px;
+}
+
+#chatHistory .badge.bg-secondary {
+    background: rgba(33, 37, 41, 0.9) !important;
+    color: var(--neon-cyan);
+    border: 1px solid var(--neon-cyan);
+    float: left;
+    clear: both;
+    margin-bottom: 8px;
+}
+
+/* =========================================
+   7. VISUALS (Charts, Scores)
+   ========================================= */
+#riskScoreDisplay {
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px currentColor;
+    line-height: 1;
+}
+
+.text-danger { color: var(--neon-red) !important; text-shadow: 0 0 8px var(--neon-red); }
+.text-warning { color: var(--neon-yellow) !important; text-shadow: 0 0 8px var(--neon-yellow); }
+.text-success { color: var(--neon-green) !important; text-shadow: 0 0 8px var(--neon-green); }
+.text-info { color: var(--neon-cyan) !important; text-shadow: 0 0 8px var(--neon-cyan); }
+
+#attackChart {
+    width: 100% !important;
+    max-height: 250px;
+}
+
+/* =========================================
+   8. MOBILE RESPONSIVENESS
+   ========================================= */
+@media (max-width: 991.98px) {
+    /* UNLOCK SCROLLING ON MOBILE for everyone */
+    html, body, body.vault-mode {
+        overflow: auto !important; 
+        height: auto !important;
+    }
+    
+    .container-fluid.h-100, 
+    body.vault-mode .container-fluid.h-100 {
+        height: auto !important;
+    }
+
+    .col-lg-5, .col-lg-7,
+    body.vault-mode .col-lg-5, 
+    body.vault-mode .col-lg-7 {
+        height: auto !important;
+        overflow-y: visible !important; 
+        margin-bottom: 2rem;
+    }
+    
+    #chatHistory {
+        height: 300px; 
+    }
+}
+
+------------------------------------------------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSentinel | AI Security Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="vault-mode">
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary">
+    <div class="container-fluid">
+      <a class="navbar-brand text-info fw-bold" href="#">
+        <i class="fas fa-shield-alt me-2"></i>CyberSentinel AI
+      </a>
+      <span class="badge bg-danger">SOC Analyst Mode</span>
+    </div>
+  </nav>
+
+  <div class="container-fluid mt-3 h-100"> 
+    <div class="row h-100">
+      
+      <div class="col-lg-5 d-flex flex-column h-100 pb-4">
+        <div class="card shadow-sm border-0 bg-dark-subtle flex-grow-1 d-flex flex-column">
+          
+          <div class="card-header bg-transparent border-0 pt-3">
+             <ul class="nav nav-tabs card-header-tabs" id="inputTabs" role="tablist">
+                <li class="nav-item">
+                   <button class="nav-link active text-primary fw-bold" id="code-tab" data-bs-toggle="tab" data-bs-target="#code-pane" type="button">
+                     <i class="fas fa-code me-2"></i>Source Code
+                   </button>
+                </li>
+                <li class="nav-item">
+                   <button class="nav-link text-warning fw-bold" id="binary-tab" data-bs-toggle="tab" data-bs-target="#binary-pane" type="button">
+                     <i class="fas fa-file-binary me-2"></i>Binary File
+                   </button>
+                </li>
+             </ul>
+          </div>
+
+          <div class="card-body d-flex flex-column">
+            <div class="tab-content flex-grow-0 mb-3" id="inputTabContent">
+                <div class="tab-pane fade show active" id="code-pane">
+                    <textarea id="codeInput" class="form-control font-monospace bg-dark text-light border-secondary" rows="10"
+                      placeholder="Paste suspicious script (Python, PowerShell, Bash, etc.) here..."></textarea>
+                </div>
+
+                <div class="tab-pane fade" id="binary-pane">
+                    <div class="border border-secondary border-dashed rounded p-5 text-center bg-dark" id="dropZone">
+                       <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                       <h5 class="text-light">Drag & Drop File</h5>
+                       <p class="text-secondary small">Supports .EXE, .DLL, .SYS</p>
+                       <input type="file" id="fileInput" class="form-control bg-secondary text-light w-75 mt-2 mx-auto">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2 mb-3">
+                <button id="analyzeBtn" class="btn btn-primary flex-grow-1 fw-bold">
+                    <i class="fas fa-search me-2"></i>Analyze Threat
+                </button>
+                <button id="deobfuscateBtn" class="btn btn-outline-warning" title="Attempt De-obfuscation">
+                    <i class="fas fa-unlock"></i>
+                </button>
+            </div>
+
+            <div class="card border-secondary bg-dark flex-grow-1 d-flex flex-column" style="min-height: 250px;">
+                <div class="card-header border-secondary py-1 d-flex justify-content-between align-items-center">
+                    <small class="text-info"><i class="fas fa-robot me-1"></i>CyberSentinel AI Assistant</small>
+                </div>
+                
+                <div class="card-body p-3 overflow-auto" id="chatHistory" style="flex: 1;">
+                    <div class="text-muted small text-center mt-4">
+                        <i class="fas fa-shield-alt fa-2x mb-2 d-block opacity-50"></i>
+                        Ready for analysis...
+                    </div>
+                </div>
+
+                <div class="card-footer border-secondary p-2">
+                    <div class="d-flex gap-2">
+                        <input id="chatInput" type="text" class="form-control form-control-sm bg-black text-light border-secondary" placeholder="Ask AI...">
+                        <button id="sendChatBtn" class="btn btn-sm btn-outline-info"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+          </div> </div> </div> <div class="col-lg-7 h-100 overflow-auto pb-5">
+        
+        <div id="loadingSpinner" class="text-center d-none py-5 mt-5">
+          <div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></div>
+          <h4 class="mt-4 text-info fw-light">DECRYPTING MALWARE SIGNATURES...</h4>
+        </div>
+
+        <div id="resultsSection" class="d-none">
+          
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="text-light mb-0"><i class="fas fa-chart-radar text-success me-2"></i>Threat Intelligence</h4>
+            <div class="d-flex gap-2">
+                <button id="vtBtn" class="btn btn-sm btn-outline-success"><i class="fas fa-globe me-1"></i>VirusTotal</button>
+                <button id="pdfBtn" class="btn btn-sm btn-outline-light"><i class="fas fa-file-pdf me-1"></i>Export Report</button>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-4">
+             <div class="col-md-4">
+                <div class="card h-100 border-0 bg-dark-subtle text-center py-4">
+                    <h6 class="text-muted small text-uppercase">Threat Score</h6>
+                    <h1 class="display-2 fw-bold mb-0" id="riskScoreDisplay">0</h1>
+                    <div class="mt-2"><span id="malwareTypeLabel" class="badge bg-secondary">Pending</span></div>
+                </div>
+             </div>
+             
+             <div class="col-md-8">
+                <div class="card h-100 border-0 bg-dark-subtle p-3">
+                    <canvas id="attackChart" style="max-height: 200px;"></canvas>
+                </div>
+             </div>
+          </div>
+
+          <div class="card border-0 bg-dark-subtle">
+            <div class="card-header bg-transparent border-secondary">
+              <h5 class="mb-0 text-info"><i class="fas fa-file-medical-alt me-2"></i>Heuristic Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div id="behaviorsList" class="mb-3 d-flex flex-wrap gap-2"></div>
+                <hr class="border-secondary opacity-25">
+                <div id="aiExplanation" class="ai-output text-light small" style="line-height: 1.6;"></div>
+            </div>
+          </div>
+
+        </div> <div id="emptyState" class="h-100 d-flex flex-column justify-content-center align-items-center text-center opacity-25 pb-5">
+             <i class="fas fa-satellite-dish fa-5x mb-3"></i>
+             <h3>Awaiting Target</h3>
+             <p>Upload a binary or paste code on the left to begin.</p>
+        </div>
+
+      </div> </div> </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

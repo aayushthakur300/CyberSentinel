@@ -108,4 +108,4 @@ def generate_pdf_report(data):
 
     c.save()
     buffer.seek(0)
-    return buffer
+    return buffer.getvalue()

@@ -10,3 +10,10 @@ pydantic
 python-dotenv
 pefile
 yara-python
+markdown
+psutil          # For Hardware Monitor
+scapy           # For Network Forensics
+stegano         # For Steganography
+feedparser      # For Threat Intelligence
+pillow          # Image Processing
+websockets      # For Live Data
