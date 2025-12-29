@@ -3,7 +3,7 @@
 // -->2nd version
 // document.addEventListener("DOMContentLoaded", () => {
 //     console.log("✅ CyberSentinel Frontend Initializing...");
-    
+
 //     // --- CONFIGURATION ---
 //     const API_BASE = "http://127.0.0.1:8001";
 //     const WS_BASE = "ws://127.0.0.1:8001";
@@ -15,7 +15,7 @@
 //     // ============================================================
 //     try {
 //         const ws = new WebSocket(`${WS_BASE}/ws/system`);
-        
+
 //         ws.onmessage = (event) => {
 //             const data = JSON.parse(event.data);
 //             safeSetText("cpuMetric", `CPU: ${data.cpu}%`);
@@ -44,7 +44,7 @@
 
 //         try {
 //             console.log("🚀 [FRONTEND] Fetching Global Threat Data...");
-            
+
 //             // 2. Fetch Request (Matches Backend: /analyze/threats)
 //             const res = await fetch(`${API_BASE}/analyze/threats`);
 
@@ -64,11 +64,11 @@
 //                     // Smart Fallback: Handles RSS 'title' or DB 'filename'
 //                     const label = t.title || t.filename || "Unknown Anomaly";
 //                     const verdict = t.verdict ? `(${t.verdict})` : "";
-                    
+
 //                     // Dynamic Styling based on keywords
 //                     let icon = "⚠️";
 //                     let colorClass = "text-warning";
-                    
+
 //                     if (label.toLowerCase().includes("ransom") || (t.risk_score && t.risk_score > 80)) {
 //                         icon = "💀";
 //                         colorClass = "text-danger";
@@ -84,7 +84,7 @@
 
 //                 marquee.innerHTML = tickerHTML;
 //                 console.log(`✅ [FRONTEND] Ticker updated with ${threats.length} entries.`);
-                
+
 //             } else {
 //                 console.warn("⚠️ [FRONTEND] Threat feed returned empty array.");
 //                 marquee.innerHTML = '<span class="text-success mx-4">✔ Global Threat Levels Nominal. No active alerts.</span>';
@@ -111,7 +111,7 @@
 //     document.body.addEventListener("click", async (e) => {
 //         // match: The element clicked, OR its parent (for icons <i> inside buttons)
 //         const target = e.target.closest("#exportPdfBtn, #export-btn, #pdfBtn, #vtScanBtn, #vtBtn, #virustotal-btn, #deobfuscateBtn, #deobfuscate-btn, #analyzeBtn, #sendChatBtn");
-        
+
 //         if (!target) return; // Clicked something irrelevant
 
 //         const id = target.id;
@@ -120,11 +120,11 @@
 //         // --- A. PDF EXPORT ---
 //         if (id === "exportPdfBtn" || id === "export-btn" || id === "pdfBtn") {
 //             if (!currentAnalysisData) return alert("No analysis data available. Run a scan first!");
-            
+
 //             // 🔥 SILENT KILLER DETECTION: Check Console for Metadata
 //             console.group("🔍 PDF Generation - Silent Killer Check");
 //             console.log("Full Payload:", currentAnalysisData);
-            
+
 //             const hasMetadata = currentAnalysisData && currentAnalysisData.metadata;
 //             const hasHash = hasMetadata && (currentAnalysisData.metadata.sha256 || currentAnalysisData.metadata.md5);
 
@@ -144,13 +144,13 @@
 //                     headers: { "Content-Type": "application/json" },
 //                     body: JSON.stringify(currentAnalysisData)
 //                 });
-                
+
 //                 if (!res.ok) {
 //                     const errText = await res.text();
 //                     console.error("Server Response:", errText);
 //                     throw new Error(`PDF Generation Failed: ${res.status} ${res.statusText}`);
 //                 }
-                
+
 //                 const blob = await res.blob();
 //                 const url = window.URL.createObjectURL(blob);
 //                 const a = document.createElement("a");
@@ -160,7 +160,7 @@
 //                 a.click();
 //                 window.URL.revokeObjectURL(url);
 //                 document.body.removeChild(a);
-                
+
 //             } catch (err) {
 //                 console.error("❌ PDF Export Error:", err);
 //                 alert("PDF Error: " + err.message + "\n(Check Console for Silent Killer details)");
@@ -178,11 +178,11 @@
 //                     alert("No file hash available. Run a Binary or Image analysis first to generate a hash.");
 //                     return;
 //                 }
-                
+
 //                 const hash = currentAnalysisData.metadata.sha256;
 //                 console.log(`🚀 [FRONTEND] Starting VirusTotal Scan for: ${hash}`);
 //                 toggleLoading(true);
-                
+
 //                 try {
 //                     // 2. Send Request (Matches Backend: /analyze/virustotal)
 //                     const res = await fetch(`${API_BASE}/analyze/virustotal`, {
@@ -199,15 +199,15 @@
 
 //                     const data = await res.json();
 //                     console.log("📦 [FRONTEND] VT Data Received:", data);
-                    
+
 //                     // 3. Handle Response Logic
 //                     // We check data.success (added in our python update) OR data.found
 //                     if (data.success && data.found) {
 //                         const mal = data.malicious || 0;
 //                         const safe = data.harmless || 0;
-                        
+
 //                         console.log(`✅ [FRONTEND] VT Success: ${mal} malicious detections.`);
-                        
+
 //                         const msg = `VirusTotal Results:\n\n🔴 Malicious: ${mal}\n🟢 Harmless: ${safe}\n\nClick OK to open full report.`;
 //                         if(confirm(msg)) {
 //                             window.open(data.link || `https://www.virustotal.com/gui/file/${hash}`, '_blank');
@@ -216,7 +216,7 @@
 //                     } else if (data.success && !data.found) {
 //                         console.warn("⚠️ [FRONTEND] Hash not found in VT.");
 //                         alert("⚠️ Not Found: This file hash is not in the VirusTotal database (It might be a unique or new file).");
-                    
+
 //                     } else {
 //                         // Handle API errors (Quota, Key missing, etc)
 //                         console.error("❌ [FRONTEND] VT API Error:", data.error);
@@ -265,7 +265,7 @@
 //                     // Update Editor
 //                     const resultText = data.results || "";
 //                     codeInput.value = resultText;
-                    
+
 //                     // Create a preview for the alert (max 100 chars)
 //                     // We try to find the comment /* ... */ to show the user what was found
 //                     let preview = "Check the editor for full changes.";
@@ -278,7 +278,7 @@
 
 //                     console.log("✅ [FRONTEND] Success! Updating UI.");
 //                     alert(`✅ SUCCESS: Hidden patterns decoded!\n${preview}`);
-                    
+
 //                 } else {
 //                     console.warn("⚠️ [FRONTEND] Backend analyzed code but returned 'pattern_found: false'.");
 //                     alert("⚠️ NO RESULT: The backend analyzed the code but found no known obfuscation patterns.");
@@ -305,7 +305,7 @@
 
 //     function updateDashboard(data) {
 //         console.log("🔥 Updating Dashboard:", data);
-        
+
 //         // 🔥 CRITICAL FIX: Update the LOCAL variable used by click listeners
 //         currentAnalysisData = data;
 //         // 1. Update Global State (Crucial for VirusTotal)
@@ -316,7 +316,7 @@
 //             scoreDisplay.textContent = data.risk_score;
 //             scoreDisplay.className = `display-4 fw-bold ${getRiskColorText(data.risk_score)}`;
 //         }
-       
+
 //         const typeLabel = document.getElementById("malwareTypeLabel");
 //         if(typeLabel) {
 //             typeLabel.textContent = data.malware_type;
@@ -327,7 +327,7 @@
 //         const aiOutput = document.getElementById("aiExplanation");
 //         if(aiOutput) {
 //             aiOutput.classList.add("text-light");
-            
+
 //             let rawText = data.explanation || "No AI report available.";
 
 //             // 🕵️ SILENT KILLER IDENTIFICATION & FIX
@@ -336,7 +336,7 @@
 //             // We append a preview here to kill that silence.
 //             if (data.metadata && data.metadata.sha256 && data.code) {
 //                 console.log("🕵️ Silent Killer Check: Appending Binary Preview to Report.");
-                
+
 //                 const preview = data.code.substring(0, 600); // First 600 chars
 //                 const binaryInfo = `
 //                 ### Analysis Artifacts
@@ -361,7 +361,7 @@
 //         // Check if function exists before calling to prevent crashes
 //         if (typeof renderAttackChart === "function") renderAttackChart(data.behaviors || []);
 //         if (typeof renderBehaviors === "function") renderBehaviors(data.behaviors || []);
-        
+
 //         // 6. Update Radar Chart (If it exists)
 //         if (window.riskChart && data.risk_matrix) {
 //              window.riskChart.data.datasets[0].data = Object.values(data.risk_matrix);
@@ -384,7 +384,7 @@
 //         let url = `${API_BASE}/analyze`;
 //         let bodyData;
 //         let headers = {};
-        
+
 //         // 1. Prepare Data
 //         if (isBinaryTab) {
 //             url = `${API_BASE}/analyze/binary`;
@@ -411,20 +411,20 @@
 //         try {
 //             const res = await fetch(url, { method: "POST", headers, body: bodyData });
 //             if(!res.ok) throw new Error("Analysis Failed");
-            
+
 //             const data = await res.json();
 
 //             // 🔥 FORCE UPDATE GLOBAL DATA
 //             if (!window.currentAnalysisData) window.currentAnalysisData = {};
 //             window.currentAnalysisData = data;
-            
+
 //             // 3. Update Dashboard UI
 //             updateDashboard(data);
 
 //             // 4. Handle The Report
 //             if (isBinaryTab) {
 //                 const codeBox = document.getElementById("codeInput");
-                
+
 //                 // 🕵️ DEBUG: SILENT KILLER CHECK 🕵️
 //                 console.log("🕵️ SILENT KILLER CHECK:", {
 //                     "Is CodeBox Found?": !!codeBox,
@@ -443,7 +443,7 @@
 //                 } else {
 //                     console.error("❌ SILENT KILLER FOUND: HTML Element 'codeInput' is missing!");
 //                 }
-                
+
 //                 console.log("✅ Report generated. Hash:", data.metadata?.sha256);
 //                 alert("Analysis Complete!\n\n1. Risk Score Updated.\n2. VirusTotal Button is Ready.\n3. Full Report is waiting in the 'Source Code' tab.");
 //             }
@@ -458,7 +458,7 @@
 //     // ============================================================
 //     // 5. GLOBAL FUNCTIONS (Window Scope for HTML onclick="")
 //     // ============================================================
-    
+
 //     // --- STEGANOGRAPHY ---
 //     window.runStego = async function() {
 //         console.log("🖱️ Run Stego Clicked");
@@ -472,12 +472,12 @@
 //         try {
 //             const res = await fetch(`${API_BASE}/analyze/stego`, { method: "POST", body: formData });
 //             const data = await res.json();
-            
+
 //             const output = document.getElementById("stegoResults");
 //             if(output) {
 //                 output.classList.remove("d-none");
 //                 let html = `<strong>Hidden Data Found:</strong> ${data.has_hidden_data ? '<span class="text-danger fw-bold">YES</span>' : '<span class="text-success">NO</span>'}<br>`;
-                
+
 //                 if(data.has_hidden_data && data.behaviors) {
 //                     const secretMsg = data.behaviors.find(b => 
 //                         b.toLowerCase().includes("decoded") || 
@@ -515,7 +515,7 @@
 //         try {
 //             const res = await fetch(`${API_BASE}/analyze/pcap`, { method: "POST", body: formData });
 //             const data = await res.json();
-            
+
 //             const output = document.getElementById("pcapResults");
 //             if(output) {
 //                 output.classList.remove("d-none");
@@ -536,7 +536,7 @@
 //     // --- CHAT HANDLER (ROBUST VERSION) ---
 //     async function handleChat() {
 //         console.group("💬 [FRONTEND] Chat Interaction Started");
-        
+
 //         const input = document.getElementById("chatInput");
 //         const chatBody = document.getElementById("chatBody");
 //         const codeInput = document.getElementById("codeInput");
@@ -555,7 +555,7 @@
 //             console.groupEnd();
 //             return;
 //         }
-        
+
 //         console.log(`User Question: "${question}"`);
 
 //         // 2. Append USER Message (Immediate UI Feedback)
@@ -564,18 +564,18 @@
 //         userDiv.innerHTML = `<span class="badge bg-primary p-2 text-wrap text-start" style="max-width: 85%; font-size: 0.9rem;">${question}</span>`;
 //         chatBody.appendChild(userDiv);
 //         chatBody.scrollTop = chatBody.scrollHeight; // Auto-scroll
-        
+
 //         input.value = ""; // Clear Input
-        
+
 //         try {
 //             // 3. Prepare Payload
 //             const payload = { 
 //                 code: codeInput ? codeInput.value : "", 
 //                 question: question 
 //             };
-            
+
 //             console.log("🚀 [FRONTEND] Sending Chat Request...");
-            
+
 //             // 4. Send Request (Matches Backend: /analyze/chat)
 //             const res = await fetch(`${API_BASE}/analyze/chat`, {
 //                 method: "POST",
@@ -584,7 +584,7 @@
 //             });
 
 //             console.log(`📡 [FRONTEND] HTTP Status: ${res.status}`);
-            
+
 //             if(!res.ok) {
 //                 // Try to read error text from server
 //                 const errText = await res.text();
@@ -593,10 +593,10 @@
 
 //             const data = await res.json();
 //             console.log("📦 [FRONTEND] AI Reply Received:", data);
-            
+
 //             // 5. Render AI Reply
 //             const replyText = data.reply || "⚠️ AI returned an empty response.";
-            
+
 //             // Check for Markdown library 'marked'
 //             let formattedText = replyText;
 //             if (typeof marked !== 'undefined') {
@@ -609,7 +609,7 @@
 //             aiDiv.className = "text-start mb-2";
 //             // Uses 'bg-dark' and 'border' to distinguish from user
 //             aiDiv.innerHTML = `<span class="badge bg-dark border border-secondary p-2 text-wrap text-start w-100" style="white-space: pre-wrap; font-size: 0.9rem;">${formattedText}</span>`;
-            
+
 //             chatBody.appendChild(aiDiv);
 //             chatBody.scrollTop = chatBody.scrollHeight; // Auto-scroll
 
@@ -655,12 +655,12 @@
 //     function renderBehaviors(behaviors) {
 //         const container = document.getElementById("behaviorsList");
 //         if(!container) return;
-        
+
 //         if (!behaviors || behaviors.length === 0) {
 //             container.innerHTML = '<span class="text-muted">No specific threats detected.</span>';
 //             return;
 //         }
-        
+
 //         container.innerHTML = [...new Set(behaviors)].map(b => {
 //             if(b.includes("DECODED") || b.includes("Hidden content")) return ''; 
 //             const isCrit = b.includes("CRITICAL") || b.includes("ALERT") || b.includes("Metasploit");
@@ -675,7 +675,7 @@
 //         // 1. Get Data from Global State (Ensures sync with Backend)
 //         // Default to zeros if no matrix exists
 //         let chartData = [0, 0, 0, 0, 0, 0, 0, 0];
-        
+
 //         if (window.currentAnalysisData && window.currentAnalysisData.risk_matrix) {
 //             const m = window.currentAnalysisData.risk_matrix;
 //             // 🔥 CRITICAL: Map Keys exactly as defined in risk_engine.py
@@ -729,14 +729,21 @@
 //     }
 // console.log("✅ Frontend Ready!");
 // });
-  
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ CyberSentinel Frontend Initializing...");
-    
+
     // --- CONFIGURATION ---
-    const API_BASE = "http://127.0.0.1:8001";
-    const WS_BASE = "ws://127.0.0.1:8001";
-    let currentAnalysisData = null; 
+    // const API_BASE = "http://127.0.0.1:8001";
+    // const WS_BASE = "ws://127.0.0.1:8001";
+    // --- CONFIGURATION ---
+    // Automatically detect if running locally or on Render
+    const isLocal = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
+
+    const API_BASE = isLocal ? "http://127.0.0.1:8001" : window.location.origin;
+    const WS_PROTOCOL = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const WS_BASE = isLocal ? "ws://127.0.0.1:8001" : `${WS_PROTOCOL}//${window.location.host}`;
+    let currentAnalysisData = null;
     let attackChartInstance = null;
 
     // ============================================================
@@ -744,7 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ============================================================
     try {
         const ws = new WebSocket(`${WS_BASE}/ws/system`);
-        
+
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             safeSetText("cpuMetric", `CPU: ${data.cpu}%`);
@@ -753,7 +760,7 @@ document.addEventListener("DOMContentLoaded", () => {
             safeSetText("netMetric", `NET: ${netVal} KB/s`);
 
             const dot = document.querySelector(".status-dot-live");
-            if(dot) dot.style.boxShadow = `0 0 ${data.cpu * 0.5}px #00ff41`;
+            if (dot) dot.style.boxShadow = `0 0 ${data.cpu * 0.5}px #00ff41`;
         };
         ws.onerror = () => console.warn("WebSocket Disconnected (Ignore if backend is restarting)");
     } catch (e) { console.warn("WebSocket Init Failed", e); }
@@ -774,7 +781,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             console.log("🚀 [FRONTEND] Fetching Global Threat Data...");
-            
+
             // 2. Fetch Request
             const res = await fetch(`${API_BASE}/analyze/threats`);
             console.log(`📡 [FRONTEND] Feed Status: ${res.status}`);
@@ -790,10 +797,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const tickerHTML = threats.map(t => {
                     const label = t.title || t.filename || "Unknown Anomaly";
                     const verdict = t.verdict ? `(${t.verdict})` : "";
-                    
+
                     let icon = "⚠️";
                     let colorClass = "text-warning";
-                    
+
                     if (label.toLowerCase().includes("ransom") || (t.risk_score && t.risk_score > 80)) {
                         icon = "💀";
                         colorClass = "text-danger";
@@ -809,7 +816,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 marquee.innerHTML = tickerHTML;
                 console.log(`✅ [FRONTEND] Ticker updated with ${threats.length} entries.`);
-                
+
             } else {
                 console.warn("⚠️ [FRONTEND] Threat feed returned empty array.");
                 marquee.innerHTML = '<span class="text-success mx-4">✔ Global Threat Levels Nominal. No active alerts.</span>';
@@ -840,7 +847,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // --- A. PDF EXPORT ---
         if (id === "exportPdfBtn" || id === "export-btn" || id === "pdfBtn") {
             if (!currentAnalysisData) return alert("No analysis data available. Run a scan first!");
-            
+
             console.group("🔍 PDF Generation - Silent Killer Check");
             const hasMetadata = currentAnalysisData && currentAnalysisData.metadata;
             const hasHash = hasMetadata && (currentAnalysisData.metadata.sha256 || currentAnalysisData.metadata.md5);
@@ -857,9 +864,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(currentAnalysisData)
                 });
-                
+
                 if (!res.ok) throw new Error(`PDF Generation Failed: ${res.status}`);
-                
+
                 const blob = await res.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
@@ -882,10 +889,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("No file hash available. Run a Binary/Image analysis first.");
                 return;
             }
-            
+
             const hash = currentAnalysisData.metadata.sha256;
             toggleLoading(true);
-            
+
             try {
                 const res = await fetch(`${API_BASE}/analyze/virustotal`, {
                     method: "POST",
@@ -896,10 +903,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!res.ok) throw new Error(`HTTP Error! Status: ${res.status}`);
 
                 const data = await res.json();
-                
+
                 if (data.success && data.found) {
                     const msg = `VirusTotal Results:\n\n🔴 Malicious: ${data.malicious}\n🟢 Harmless: ${data.harmless}\n\nClick OK to open full report.`;
-                    if(confirm(msg)) window.open(data.link, '_blank');
+                    if (confirm(msg)) window.open(data.link, '_blank');
                 } else if (data.success && !data.found) {
                     alert("⚠️ Not Found: This hash is not in VirusTotal database.");
                 } else {
@@ -919,7 +926,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             toggleLoading(true);
             try {
-                const res = await fetch(`${API_BASE}/deobfuscate`, { 
+                const res = await fetch(`${API_BASE}/deobfuscate`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ code: codeInput.value })
@@ -955,28 +962,28 @@ document.addEventListener("DOMContentLoaded", () => {
     // ============================================================
     function updateDashboard(data) {
         console.log("🔥 Updating Dashboard:", data);
-        
+
         // 1. Update Global State
         currentAnalysisData = data;
-        window.currentAnalysisData = data; 
+        window.currentAnalysisData = data;
 
         // 2. Risk Score
         const scoreDisplay = document.getElementById("riskScoreDisplay");
-        if(scoreDisplay) {
+        if (scoreDisplay) {
             scoreDisplay.textContent = data.risk_score;
             scoreDisplay.className = `display-4 fw-bold ${getRiskColorText(data.risk_score)}`;
         }
-        
+
         // 3. Malware Type
         const typeLabel = document.getElementById("malwareTypeLabel");
-        if(typeLabel) {
+        if (typeLabel) {
             typeLabel.textContent = data.malware_type;
             typeLabel.className = `badge fs-6 ${getRiskColorBg(data.risk_score)}`;
         }
 
         // 4. AI Report
         const aiOutput = document.getElementById("aiExplanation");
-        if(aiOutput) {
+        if (aiOutput) {
             aiOutput.classList.add("text-light");
             let rawText = data.explanation || "No AI report available.";
 
@@ -1001,14 +1008,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 5. Render Charts & Lists
         // We pass the risk matrix directly to the chart logic, behaviors to the list
-        renderAttackChart(data.risk_matrix); 
+        renderAttackChart(data.risk_matrix);
         renderBehaviors(data.behaviors || []);
-        
+
         // 6. Show Results
         const resSection = document.getElementById("resultsSection");
         const emptyState = document.getElementById("emptyState");
-        if(resSection) resSection.classList.remove("d-none");
-        if(emptyState) emptyState.classList.add("d-none");
+        if (resSection) resSection.classList.remove("d-none");
+        if (emptyState) emptyState.classList.add("d-none");
     }
 
     // ============================================================
@@ -1021,19 +1028,19 @@ document.addEventListener("DOMContentLoaded", () => {
         let url = `${API_BASE}/analyze`;
         let bodyData;
         let headers = {};
-        
+
         if (isBinaryTab) {
             url = `${API_BASE}/analyze/binary`;
             const fileInput = document.getElementById("fileInput");
             if (!fileInput || !fileInput.files[0]) return alert("Select a binary file first.");
-            
+
             const formData = new FormData();
             formData.append("file", fileInput.files[0]);
             bodyData = formData;
         } else {
             const codeInput = document.getElementById("codeInput");
             if (!codeInput || !codeInput.value.trim()) return alert("Paste source code first.");
-            
+
             headers = { "Content-Type": "application/json" };
             bodyData = JSON.stringify({ code: codeInput.value });
         }
@@ -1041,14 +1048,14 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleLoading(true);
         try {
             const res = await fetch(url, { method: "POST", headers, body: bodyData });
-            if(!res.ok) throw new Error("Analysis Failed");
-            
+            if (!res.ok) throw new Error("Analysis Failed");
+
             const data = await res.json();
             updateDashboard(data);
 
             if (isBinaryTab) {
                 const codeBox = document.getElementById("codeInput");
-                if(codeBox && data.code) codeBox.value = data.code;
+                if (codeBox && data.code) codeBox.value = data.code;
                 alert("Analysis Complete! Risk Score Updated.");
             }
 
@@ -1063,9 +1070,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // ============================================================
     // 5. GLOBAL FUNCTIONS (HTML Accessible)
     // ============================================================
-    window.runStego = async function() {
+    window.runStego = async function () {
         const fileInput = document.getElementById("stegoInput");
-        if(!fileInput || !fileInput.files[0]) return alert("Upload an image first.");
+        if (!fileInput || !fileInput.files[0]) return alert("Upload an image first.");
 
         const formData = new FormData();
         formData.append("file", fileInput.files[0]);
@@ -1074,25 +1081,25 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch(`${API_BASE}/analyze/stego`, { method: "POST", body: formData });
             const data = await res.json();
-            
+
             const output = document.getElementById("stegoResults");
-            if(output) {
+            if (output) {
                 output.classList.remove("d-none");
                 let html = `<strong>Hidden Data:</strong> ${data.has_hidden_data ? '<span class="text-danger">YES</span>' : '<span class="text-success">NO</span>'}<br>`;
-                
-                if(data.has_hidden_data && data.behaviors) {
+
+                if (data.has_hidden_data && data.behaviors) {
                     const secretMsg = data.behaviors.find(b => b.toLowerCase().includes("decoded") || b.toLowerCase().includes("hidden"));
-                    if(secretMsg) html += `<div class="mt-2 p-2 bg-dark text-warning">${secretMsg}</div>`;
+                    if (secretMsg) html += `<div class="mt-2 p-2 bg-dark text-warning">${secretMsg}</div>`;
                 }
                 output.innerHTML = html;
             }
             updateDashboard(data);
-        } catch(e) { alert("Stego Failed: " + e.message); } finally { toggleLoading(false); }
+        } catch (e) { alert("Stego Failed: " + e.message); } finally { toggleLoading(false); }
     };
 
-    window.runPcap = async function() {
+    window.runPcap = async function () {
         const fileInput = document.getElementById("pcapInput");
-        if(!fileInput || !fileInput.files[0]) return alert("Upload a .pcap file first.");
+        if (!fileInput || !fileInput.files[0]) return alert("Upload a .pcap file first.");
 
         const formData = new FormData();
         formData.append("file", fileInput.files[0]);
@@ -1101,15 +1108,15 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch(`${API_BASE}/analyze/pcap`, { method: "POST", body: formData });
             const data = await res.json();
-            
+
             const output = document.getElementById("pcapResults");
-            if(output) {
+            if (output) {
                 output.classList.remove("d-none");
-                output.innerHTML = `<div class="mb-2"><strong>Packets:</strong> ${data.packet_count}</div>` + 
-                                   (data.risk_score > 50 ? `<div class="text-danger fw-bold">⚠️ Threats Found</div>` : `<div class="text-success">✔ Clean</div>`);
+                output.innerHTML = `<div class="mb-2"><strong>Packets:</strong> ${data.packet_count}</div>` +
+                    (data.risk_score > 50 ? `<div class="text-danger fw-bold">⚠️ Threats Found</div>` : `<div class="text-success">✔ Clean</div>`);
             }
             updateDashboard(data);
-        } catch(e) { alert("PCAP Failed: " + e.message); } finally { toggleLoading(false); }
+        } catch (e) { alert("PCAP Failed: " + e.message); } finally { toggleLoading(false); }
     };
 
     async function handleChat() {
@@ -1121,7 +1128,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const question = input.value.trim();
         chatBody.innerHTML += `<div class="text-end mb-2"><span class="badge bg-primary p-2">${question}</span></div>`;
-        input.value = ""; 
+        input.value = "";
 
         try {
             const res = await fetch(`${API_BASE}/analyze/chat`, {
@@ -1130,14 +1137,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ code: codeInput ? codeInput.value : "", question: question })
             });
 
-            if(!res.ok) throw new Error("Server Error");
+            if (!res.ok) throw new Error("Server Error");
             const data = await res.json();
-            
+
             const formattedText = (typeof marked !== 'undefined') ? marked.parse(data.reply) : data.reply;
             chatBody.innerHTML += `<div class="text-start mb-2"><span class="badge bg-dark border border-secondary p-2 w-100 text-start" style="white-space: pre-wrap;">${formattedText}</span></div>`;
             chatBody.scrollTop = chatBody.scrollHeight;
 
-        } catch(e) { 
+        } catch (e) {
             chatBody.innerHTML += `<div class="text-center mb-2"><span class="badge bg-danger p-2">Error: ${e.message}</span></div>`;
         }
     }
@@ -1148,13 +1155,13 @@ document.addEventListener("DOMContentLoaded", () => {
     function toggleLoading(isLoading) {
         const overlay = document.getElementById("loadingOverlay");
         const main = document.getElementById("mainContainer");
-        if(overlay) overlay.style.display = isLoading ? "flex" : "none";
-        if(main) isLoading ? main.classList.add("blur-content") : main.classList.remove("blur-content");
+        if (overlay) overlay.style.display = isLoading ? "flex" : "none";
+        if (main) isLoading ? main.classList.add("blur-content") : main.classList.remove("blur-content");
     }
 
     function safeSetText(id, text) {
         const el = document.getElementById(id);
-        if(el) el.textContent = text;
+        if (el) el.textContent = text;
     }
 
     function getRiskColorText(score) {
@@ -1171,15 +1178,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderBehaviors(behaviors) {
         const container = document.getElementById("behaviorsList");
-        if(!container) return;
-        
+        if (!container) return;
+
         if (!behaviors || behaviors.length === 0) {
             container.innerHTML = '<span class="text-muted">No specific threats detected.</span>';
             return;
         }
-        
+
         container.innerHTML = [...new Set(behaviors)].map(b => {
-            if(b.includes("DECODED") || b.includes("Hidden content")) return ''; 
+            if (b.includes("DECODED") || b.includes("Hidden content")) return '';
             const isCrit = b.includes("CRITICAL") || b.includes("ALERT") || b.includes("Metasploit");
             return `<span class="badge ${isCrit ? 'bg-danger' : 'bg-dark border border-secondary'} p-2 m-1">${b}</span>`;
         }).join('');
@@ -1192,7 +1199,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Default to zeros if no matrix exists
         let chartData = [0, 0, 0, 0, 0, 0, 0, 0];
-        
+
         if (riskMatrix) {
             // 🔥 CRITICAL: Map Keys exactly as defined in risk_engine.py
             chartData = [
