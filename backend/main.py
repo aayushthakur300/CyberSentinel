@@ -71,40 +71,29 @@ import asyncio
 import psutil
 from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-# --- 🔥 FIX 1: PATH SETUP ---
-# This ensures Python sees the 'backend' folder as the root.
+# --- PATH SETUP ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 
 load_dotenv()
 
-# --- 🔥 FIX 2: CORRECT IMPORTS ---
-# We use 'app.routers.analyze' because the file is inside backend/app/routers/
+# --- IMPORTS ---
 try:
     from app.database import Base, engine
-    # ✅ CORRECTED LINE BELOW (Changed 'routes' to 'app.routers')
     from routes.analyze import router as analyze_router
 except ImportError as e:
-    print("\n❌ IMPORT ERROR:")
-    print(f"   {e}")
-    print("   --------------------------------------------------------")
-    print("   CHECK THIS: 1. Does 'backend/app/routers/analyze.py' exist?")
-    print("   2. Does 'backend/app/__init__.py' exist?")
-    print("   --------------------------------------------------------\n")
+    print(f"❌ Import Error: {e}")
     sys.exit(1)
 
-# Initialize DB
 Base.metadata.create_all(bind=engine)
 
-# --- FIX 3: STATIC FILES PATH ---
-static_dir = os.path.abspath(os.path.join(current_dir, "../static"))
-if not os.path.exists(static_dir):
-    # Fallback: Try 'frontend' if 'static' doesn't exist
-    static_dir = os.path.abspath(os.path.join(current_dir, "../frontend"))
+# --- FRONTEND FOLDER ---
+# Looks for 'frontend' folder one level up
+static_dir = os.path.abspath(os.path.join(current_dir, "../frontend"))
 
 app = FastAPI(title="CyberSentinel AI")
 
@@ -135,29 +124,29 @@ async def system_monitor(websocket: WebSocket):
     except Exception as e:
         print(f"Monitor Disconnected: {e}")
 
-# --- PAGE SERVING ---
+# --- 🚀 ROUTING FIX ---
+
+# 1. LANDING PAGE -> DASHBOARD
 @app.get("/")
 async def serve_landing():
-    index_path = os.path.join(static_dir, "index.html")
-    if os.path.exists(index_path):
-        return FileResponse(index_path)
-    return {"error": f"index.html not found in {static_dir}"}
-
-@app.get("/dashboard") 
-async def serve_dashboard():
     dash_path = os.path.join(static_dir, "dashboard.html")
     if os.path.exists(dash_path):
         return FileResponse(dash_path)
-    return {"error": "dashboard.html not found"}
+    return JSONResponse(content={"error": "dashboard.html not found", "path": dash_path}, status_code=404)
 
-# Mount Static Files
+# 2. APP PAGE -> INDEX (Old CyberSentinel)
+@app.get("/analyze") 
+async def serve_analyze():
+    index_path = os.path.join(static_dir, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return JSONResponse(content={"error": "index.html not found", "path": index_path}, status_code=404)
+
+# 3. STATIC FILES
 if os.path.exists(static_dir):
-    print(f"📂 Serving static files from: {static_dir}")
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
-    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static_root")
-else:
-    print(f"⚠️ WARNING: Could not find 'static' or 'frontend' folder at {static_dir}")
+    app.mount("/", StaticFiles(directory=static_dir), name="root_static")
 
 if __name__ == "__main__":
-    print(f"🚀 Server running on: http://127.0.0.1:8001")
+    print("🚀 Server running on: http://127.0.0.1:8001")
     uvicorn.run("main:app", host="127.0.0.1", port=8001, reload=True)

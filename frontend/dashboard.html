@@ -1,46 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>CyberSentinel AI | Neural Malware Intelligence</title>
-    <link rel="stylesheet" href="style.css">
+    <title>CyberSentinel | Neural Malware Intelligence</title>
+    <link rel="stylesheet" href="/static/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
+        /* -------------------------
+           THEME ENGINE
+        ------------------------- */
         :root {
+            /* DARK MODE (DEFAULT) */
             --bg-deep: #020202;
+            --bg-panel: rgba(20, 20, 25, 0.6);
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            
             --cyber-cyan: #0dcaf0;
             --cyber-glow: rgba(13, 202, 240, 0.4);
             --danger-red: #ff073a;
-            --panel-glass: rgba(15, 15, 15, 0.7);
-            --border-tech: rgba(13, 202, 240, 0.15);
+            --danger-glow: rgba(255, 7, 58, 0.4);
+            
+            --border-tech: rgba(13, 202, 240, 0.2);
+            --scanline-opacity: 1;
+            --grid-opacity: 0.15;
+            --card-hover-bg: rgba(13, 202, 240, 0.05);
+            --shadow-text: 0 0 10px var(--cyber-glow);
         }
 
+        [data-theme="light"] {
+            /* LIGHT MODE OVERRIDES */
+            --bg-deep: #f0f2f5;
+            --bg-panel: rgba(255, 255, 255, 0.95);
+            --text-main: #1a1a1a;
+            --text-muted: #4b5563;
+            
+            --cyber-cyan: #006699; /* Darker blue for contrast on white */
+            --cyber-glow: rgba(0, 102, 153, 0); /* No glow in light mode for sharpness */
+            --danger-red: #d90429;
+            --danger-glow: rgba(217, 4, 41, 0);
+            
+            --border-tech: rgba(0, 0, 0, 0.15);
+            --scanline-opacity: 0.02; 
+            --grid-opacity: 0.05;
+            --card-hover-bg: rgba(0, 0, 0, 0.05);
+            --shadow-text: none; /* Remove text shadow in light mode */
+        }
+
+        /* -------------------------
+           CORE STYLES
+        ------------------------- */
         body {
             background-color: var(--bg-deep);
-            color: #ffffff;
+            color: var(--text-main);
             font-family: 'Space Grotesk', sans-serif;
             overflow-x: hidden;
-            padding-bottom: 40px;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
         /* SCANLINE ANIMATION */
-        body::before {
-            content: " ";
+        .scanlines {
             position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             z-index: 9999;
             background-size: 100% 2px, 3px 100%;
             pointer-events: none;
+            opacity: var(--scanline-opacity);
+            transition: opacity 0.5s;
         }
 
-        /* NEURAL GRID BACKGROUND */
+        /* BACKGROUND GRID */
         .cyber-grid {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -49,264 +84,377 @@
                 linear-gradient(90deg, var(--border-tech) 1px, transparent 1px);
             background-size: 50px 50px;
             z-index: -1;
-            mask-image: radial-gradient(circle at center, black 30%, transparent 90%);
+            mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+            opacity: var(--grid-opacity);
         }
 
-        /* GLITCH TITLES */
+        /* GLITCH TEXT */
         .glitch-text {
             font-family: 'Syncopate', sans-serif;
             text-transform: uppercase;
-            letter-spacing: 4px;
+            letter-spacing: 2px;
             color: var(--cyber-cyan);
-            text-shadow: 0 0 15px var(--cyber-glow);
+            text-shadow: var(--shadow-text);
         }
 
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-
-        .scanner-line {
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background: var(--cyber-cyan);
-            box-shadow: 0 0 20px var(--cyber-cyan);
-            animation: scan 4s linear infinite;
-            opacity: 0.3;
-        }
-
-        /* FEATURE CARDS */
+        /* CYBER CARD */
         .cyber-card {
-            background: var(--panel-glass);
+            background: var(--bg-panel);
             border: 1px solid var(--border-tech);
-            backdrop-filter: blur(10px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            color: var(--text-main);
         }
 
-        .cyber-card::after {
+        .cyber-card::before {
             content: '';
             position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(13, 202, 240, 0.05), transparent);
-            transform: rotate(45deg);
-            transition: 0.5s;
+            top: 0; left: 0; width: 2px; height: 0%;
+            background: var(--cyber-cyan);
+            transition: height 0.3s ease;
         }
 
         .cyber-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px var(--cyber-glow);
             border-color: var(--cyber-cyan);
-            box-shadow: 0 0 30px var(--cyber-glow);
-            transform: translateY(-10px);
+            background: var(--card-hover-bg);
         }
 
-        .cyber-card:hover::after {
-            left: 100%;
+        .cyber-card:hover::before {
+            height: 100%;
         }
 
         /* BUTTONS */
         .btn-cyber {
-            background: transparent;
+            background: rgba(13, 202, 240, 0.1);
             border: 1px solid var(--cyber-cyan);
             color: var(--cyber-cyan);
             font-family: 'Syncopate', sans-serif;
             font-size: 0.75rem;
             letter-spacing: 2px;
+            text-transform: uppercase;
             position: relative;
-            transition: 0.3s;
             overflow: hidden;
+            transition: 0.3s;
         }
 
         .btn-cyber:hover {
             background: var(--cyber-cyan);
-            color: var(--bg-deep);
-            box-shadow: 0 0 20px var(--cyber-cyan);
+            color: white;
+            box-shadow: 0 0 20px var(--cyber-glow);
         }
 
-        /* FOOTER */
-        footer {
-            background: rgba(0,0,0,0.9);
-            border-top: 1px solid var(--border-tech);
-            backdrop-filter: blur(10px);
+        .btn-danger-glow {
+            background: linear-gradient(45deg, #7f1d1d, var(--danger-red));
+            color: white;
+            border: none;
+            box-shadow: 0 0 15px var(--danger-glow);
+        }
+        
+        .btn-danger-glow:hover {
+            box-shadow: 0 0 30px var(--danger-glow);
+            transform: scale(1.05);
         }
 
+        /* TERMINAL WINDOW */
+        .terminal-window {
+            background: #050505; 
+            border: 1px solid #333;
+            border-top: 3px solid var(--cyber-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .typing::after {
+            content: '█';
+            animation: blink 1s infinite;
+            color: var(--cyber-cyan);
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* STATUS DOT */
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 8px; height: 8px;
             background: #00ff41;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 8px;
             box-shadow: 0 0 10px #00ff41;
             animation: pulse 2s infinite;
         }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.4; }
-            100% { opacity: 1; }
+        /* THEME TOGGLE */
+        .theme-switch {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.3s, color 0.3s;
+            color: var(--text-main);
         }
+        .theme-switch:hover { 
+            background: var(--border-tech); 
+            color: var(--cyber-cyan);
+        }
+
     </style>
 </head>
 
-<body>
+<body class="vault-mode">
+    <div class="scanlines"></div>
     <div class="cyber-grid"></div>
 
-    <nav class="fixed top-0 w-full z-50 px-8 py-5 border-b border-[var(--border-tech)] backdrop-blur-md">
+    <nav class="fixed top-0 w-full z-50 px-6 py-4 border-b border-[var(--border-tech)] bg-[var(--bg-deep)]/90 backdrop-blur-md">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <a href="#" class="flex items-center gap-3">
-                <div class="w-10 h-10 border-2 border-[var(--cyber-cyan)] rotate-45 flex items-center justify-center">
-                    <i class="fa-solid fa-shield-halved -rotate-45 text-[var(--cyber-cyan)]"></i>
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="relative w-10 h-10 flex items-center justify-center">
+                    <i class="fa-solid fa-shield-virus text-2xl text-[var(--cyber-cyan)] group-hover:rotate-12 transition-transform duration-500"></i>
+                    <div class="absolute inset-0 border border-[var(--cyber-cyan)] rotate-45 group-hover:rotate-90 transition-transform duration-700"></div>
                 </div>
-                <span class="glitch-text text-xl font-bold">Cyber<span class="text-white">Sentinel</span></span>
+                <span class="glitch-text text-lg font-bold tracking-tighter">Cyber<span style="color: var(--text-main)">Sentinel</span></span>
             </a>
 
-            <div class="hidden md:flex items-center gap-10 font-bold text-[10px] uppercase tracking-[4px]">
-                <a href="#threat-engine" class="hover:text-[var(--cyber-cyan)] transition">Threat Engine</a>
-                <a href="#ai-analyst" class="hover:text-[var(--cyber-cyan)] transition">AI Analyst</a>
-                <a href="/analyze" class="text-[var(--cyber-cyan)] border border-[var(--cyber-cyan)] px-4 py-2 hover:bg-[var(--cyber-cyan)] hover:text-black transition">
-                    Analyze Node
+            <div class="hidden md:flex items-center gap-8 font-bold text-[11px] uppercase tracking-[3px]">
+                <a href="#features" class="text-[var(--text-muted)] hover:text-[var(--cyber-cyan)] transition">Modules</a>
+                <a href="#radar" class="text-[var(--text-muted)] hover:text-[var(--cyber-cyan)] transition">Radar</a>
+                <a href="#reports" class="text-[var(--text-muted)] hover:text-[var(--cyber-cyan)] transition">Forensics</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button class="theme-switch" id="themeToggle" aria-label="Toggle Theme">
+                    <i class="fa-solid fa-sun text-xl"></i>
+                </button>
+                <a href="/analyze" class="btn-cyber px-6 py-2 rounded-sm font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-terminal"></i> Initialize
                 </a>
             </div>
         </div>
     </nav>
 
-    <section class="relative min-h-screen flex items-center justify-center pt-20 px-6">
-        <div class="max-w-5xl mx-auto text-center z-10">
-            <div class="inline-flex items-center gap-2 px-4 py-1 mb-8 border border-[var(--cyber-cyan)]/30 rounded-sm bg-[var(--cyber-cyan)]/5 text-[var(--cyber-cyan)] text-[10px] font-bold tracking-[3px] uppercase">
-                <span class="status-dot"></span> System Status: Optimal
-            </div>
+    <section class="relative min-h-screen flex items-center justify-center pt-24 px-6 overflow-hidden">
+        
+        <div class="absolute top-1/4 -left-20 w-64 h-64 bg-[var(--cyber-cyan)] blur-[150px] opacity-20 animate-pulse"></div>
+        <div class="absolute bottom-1/4 -right-20 w-64 h-64 bg-[var(--danger-red)] blur-[150px] opacity-10"></div>
 
-            <h1 class="text-6xl md:text-8xl font-bold mb-6 tracking-tighter leading-none">
-                NEURAL <br> 
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--cyber-cyan)] to-blue-500">THREAT MATRIX</span>
-            </h1>
-
-            <p class="text-gray-400 text-lg md:text-xl max-w-3xl mx-auto mb-12 font-medium tracking-wide">
-                Next-generation Static & Binary Malware Analysis. <br>
-                Leveraging to decrypt intent, visualize attack vectors, and neutralize zero-day vulnerabilities in real-time.
-            </p>
-
-            <div class="flex flex-col md:flex-row gap-6 justify-center">
-                <a href="/analyze" class="btn-cyber px-10 py-5 flex items-center justify-center gap-3 text-lg">
-                    <i class="fa-solid fa-terminal"></i> Enter Vault
-                </a>
-                <a href="#threat-engine" class="px-10 py-5 text-[10px] font-bold tracking-[3px] uppercase border border-gray-700 hover:border-[var(--cyber-cyan)] transition flex items-center justify-center gap-3">
-                    Tech Specs <i class="fa-solid fa-chevron-down"></i>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <section id="threat-engine" class="py-32 relative">
-        <div class="max-w-7xl mx-auto px-8">
-            <div class="flex flex-col items-center mb-20">
-                <h2 class="glitch-text text-3xl md:text-4xl mb-4">Core Protocols</h2>
-                <div class="h-[1px] w-40 bg-[var(--cyber-cyan)] shadow-[0_0_10px_var(--cyber-cyan)]"></div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="cyber-card p-8 group">
-                    <i class="fa-solid fa-microchip text-4xl text-[var(--cyber-cyan)] mb-6 block"></i>
-                    <h3 class="text-xl font-bold mb-4 uppercase tracking-wider text-[var(--cyber-cyan)]">Binary Extraction</h3>
-                    <p class="text-gray-400 leading-relaxed font-medium">Deep-dive PE header inspection and string extraction from Windows Executables, DLLs, and Sys-files.</p>
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center z-10">
+            
+            <div class="text-left space-y-6">
+                <div class="inline-flex items-center gap-3 px-3 py-1 border border-[var(--cyber-cyan)]/30 rounded-full bg-[var(--cyber-cyan)]/5 text-[var(--cyber-cyan)] text-[10px] font-bold tracking-[2px] uppercase">
+                    <span class="status-dot"></span> System V6.0 Online
                 </div>
 
-                <div class="cyber-card p-8 border-[var(--danger-red)]/20 hover:border-[var(--danger-red)]">
-                    <i class="fa-solid fa-brain text-4xl text-[var(--danger-red)] mb-6 block"></i>
-                    <h3 class="text-xl font-bold mb-4 uppercase tracking-wider text-[var(--danger-red)]">Heuristic Scoring</h3>
-                    <p class="text-gray-400 leading-relaxed font-medium">Weighted risk engine calculating threat intensity based on obfuscation, persistence, and network exfiltration patterns.</p>
-                </div>
+                <h1 class="text-5xl md:text-7xl font-bold leading-tight">
+                    NEURAL <br> 
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--cyber-cyan)] to-blue-600">THREAT MATRIX</span>
+                </h1>
 
-                <div class="cyber-card p-8">
-                    <i class="fa-solid fa-code-merge text-4xl text-[var(--cyber-cyan)] mb-6 block"></i>
-                    <h3 class="text-xl font-bold mb-4 uppercase tracking-wider text-[var(--cyber-cyan)]">De-obfuscator</h3>
-                    <p class="text-gray-400 leading-relaxed font-medium">Automatic detection and unpacking of Base64, Hex, and Zlib-compressed payloads embedded in suspicious scripts.</p>
-                </div>
-
-                <div class="cyber-card p-8">
-                    <i class="fa-solid fa-chart-radar text-4xl text-[var(--cyber-cyan)] mb-6 block"></i>
-                    <h3 class="text-xl font-bold mb-4 uppercase tracking-wider text-[var(--cyber-cyan)]">Attack Visualizer</h3>
-                    <p class="text-gray-400 leading-relaxed font-medium">Dynamic Radar Charts mapping technical behaviors across Execution, Persistence, and Privilege Escalation axes.</p>
-                </div>
-
-                <div class="cyber-card p-8">
-                    <i class="fa-solid fa-robot text-4xl text-[var(--cyber-cyan)] mb-6 block"></i>
-                    <h3 class="text-xl font-bold mb-4 uppercase tracking-wider text-[var(--cyber-cyan)]">LLM Analyst</h3>
-                    <p class="text-gray-400 leading-relaxed font-medium">Context-aware AI breakdown explaining *why* a function is dangerous and how to remediate the attack path.</p>
-                </div>
-
-                <div class="cyber-card p-8">
-                    <i class="fa-solid fa-file-shield text-4xl text-[var(--cyber-cyan)] mb-6 block"></i>
-                    <h3 class="text-xl font-bold mb-4 uppercase tracking-wider text-[var(--cyber-cyan)]">Forensic PDF</h3>
-                    <p class="text-gray-400 leading-relaxed font-medium">Standardized security reports for C-Suite and SOC teams including hashes, YARA hits, and AI insights.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="py-24 bg-[#050505]">
-        <div class="max-w-6xl mx-auto px-8 grid md:grid-cols-2 gap-16 items-center">
-            <div>
-                <h2 class="glitch-text text-3xl mb-8">Forensic <br> <span class="text-white">Validation</span></h2>
-                <p class="text-gray-400 text-lg mb-8 leading-relaxed">
-                    CyberSentinel's engine executes a 3-tier validation sequence: Static Regex Matching, YARA Rule Scanning, and Generative AI Explainer.
+                <p class="text-[var(--text-muted)] text-lg leading-relaxed max-w-lg">
+                    Next-generation malware analysis engine. Detects, decrypts, and visualizes Zero-Day threats using an 8-Axis Heuristic Radar and Static Binary Extraction.
                 </p>
-                <div class="space-y-4">
-                    <div class="flex items-center gap-4 text-[10px] uppercase tracking-widest text-gray-300">
-                        <i class="fa-solid fa-check text-[var(--cyber-cyan)]"></i>
-                        Signature-less Behavioral Detection
-                    </div>
-                    <div class="flex items-center gap-4 text-[10px] uppercase tracking-widest text-gray-300">
-                        <i class="fa-solid fa-check text-[var(--cyber-cyan)]"></i>
-                        Reverse Shell Pattern Isolation
-                    </div>
-                    <div class="flex items-center gap-4 text-[10px] uppercase tracking-widest text-gray-300">
-                        <i class="fa-solid fa-check text-[var(--cyber-cyan)]"></i>
-                        Persistence Registry Key Tracking
-                    </div>
+
+                <div class="flex flex-wrap gap-4 pt-4">
+                    <a href="/analyze" class="btn-danger-glow px-8 py-4 rounded font-bold text-sm tracking-widest uppercase flex items-center gap-3 transition-transform hover:-translate-y-1">
+                        <i class="fa-solid fa-radiation"></i> Start Analysis
+                    </a>
+                    <a href="#features" class="px-8 py-4 border border-[var(--text-muted)] text-[var(--text-main)] rounded font-bold text-sm tracking-widest uppercase hover:border-[var(--cyber-cyan)] hover:text-[var(--cyber-cyan)] transition-colors">
+                        Capabilities
+                    </a>
                 </div>
             </div>
 
-            <div class="relative cyber-card p-1 rounded-none border-[var(--cyber-cyan)]/40 shadow-[0_0_50px_rgba(13,202,240,0.1)]">
-                <div class="scanner-line"></div>
-                <div class="bg-black p-6 font-mono text-sm">
-                    <div class="flex gap-2 mb-4">
-                        <div class="w-3 h-3 rounded-full bg-red-500/20 border border-red-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500"></div>
+            <div class="relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-[var(--cyber-cyan)] to-[var(--danger-red)] opacity-30 blur group-hover:opacity-60 transition duration-500"></div>
+                <div class="terminal-window rounded-lg p-4 relative h-80 flex flex-col">
+                    <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-2">
+                        <div class="flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 font-mono">root@cybersentinel:~</div>
                     </div>
-                    <div class="text-gray-500 mb-2">// Initializing Analysis...</div>
-                    <div class="text-[var(--cyber-cyan)]"> > [STRINGS] Found: "powershell -enc..."</div>
-                    <div class="text-red-500"> > [THREAT] Malicious Behavior Detected</div>
-                    <div class="text-[var(--cyber-cyan)]"> > [DECRYPT] Base64 -> "IEX (New-Object Net.WebClient)..."</div>
-                    <div class="text-white mt-4 bg-[var(--cyber-cyan)]/10 p-2 border-l-2 border-[var(--cyber-cyan)]">
-                        RISK SCORE: 92/100 (CRITICAL)
-                    </div>
+                    <div class="text-sm font-mono space-y-2 overflow-hidden flex-1" id="typewriter">
+                        </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="fixed bottom-0 w-full z-50 py-3">
-        <div class="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p class="text-[10px] font-bold tracking-[2px] uppercase text-gray-500">
-                © 2025 CyberSentinel AI • Neural Forensic Lab
-            </p>
-            <div class="flex gap-8 text-gray-400">
-                <a href="#" class="hover:text-[var(--cyber-cyan)] transition"><i class="fab fa-github"></i></a>
-                <a href="#" class="hover:text-[var(--cyber-cyan)] transition"><i class="fab fa-linkedin"></i></a>
-                <a href="#" class="hover:text-[var(--cyber-cyan)] transition"><i class="fab fa-twitter"></i></a>
+    <section id="features" class="py-24 bg-[var(--bg-deep)] relative transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-6">
+            
+            <div class="text-center mb-20">
+                <h2 class="glitch-text text-3xl md:text-4xl font-bold mb-4">Core Capabilities</h2>
+                <div class="h-1 w-24 bg-[var(--cyber-cyan)] mx-auto shadow-[0_0_15px_var(--cyber-cyan)]"></div>
             </div>
-            <p class="text-[10px] font-bold tracking-[2px] uppercase text-[var(--cyber-cyan)]">
-                Secured by Neural Matrix
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <div class="cyber-card p-8 group">
+                    <div class="w-12 h-12 bg-[var(--cyber-cyan)]/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-[var(--cyber-cyan)] transition-colors duration-300">
+                        <i class="fa-solid fa-microchip text-2xl text-[var(--cyber-cyan)] group-hover:text-black"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-[var(--text-main)]">Binary Extraction</h3>
+                    <p class="text-sm text-[var(--text-muted)] leading-relaxed">Deep-dive PE header inspection and ASCII/Unicode string extraction from Windows Executables and DLLs.</p>
+                </div>
+
+                <div class="cyber-card p-8 group">
+                    <div class="w-12 h-12 bg-[var(--danger-red)]/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-[var(--danger-red)] transition-colors duration-300">
+                        <i class="fa-solid fa-brain text-2xl text-[var(--danger-red)] group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-[var(--text-main)]">Heuristic Scoring</h3>
+                    <p class="text-sm text-[var(--text-muted)] leading-relaxed">Advanced risk engine calculating threat intensity (0-100) based on behavior patterns and signatures.</p>
+                </div>
+
+                <div class="cyber-card p-8 group">
+                    <div class="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-purple-500 transition-colors duration-300">
+                        <i class="fa-solid fa-unlock text-2xl text-purple-500 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-[var(--text-main)]">De-Obfuscator</h3>
+                    <p class="text-sm text-[var(--text-muted)] leading-relaxed">Automatic detection and decoding of Base64, Hex, and Rot13 encoded payloads embedded in scripts.</p>
+                </div>
+
+                <div class="cyber-card p-8 group">
+                    <div class="w-12 h-12 bg-[var(--cyber-cyan)]/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-[var(--cyber-cyan)] transition-colors duration-300">
+                        <i class="fa-solid fa-chart-radar text-2xl text-[var(--cyber-cyan)] group-hover:text-black"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-[var(--text-main)]">8-Axis Threat Radar</h3>
+                    <p class="text-sm text-[var(--text-muted)] leading-relaxed">Visualizes threat vectors across Exfiltration, C2, Obfuscation, Persistence, and Privilege Escalation axes.</p>
+                </div>
+
+                <div class="cyber-card p-8 group border-[var(--cyber-cyan)]/30">
+                    <div class="w-12 h-12 bg-[var(--cyber-cyan)]/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-[var(--cyber-cyan)] transition-colors duration-300">
+                        <i class="fa-solid fa-robot text-2xl text-[var(--cyber-cyan)] group-hover:text-black"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-[var(--text-main)]">AI Analyst Chat</h3>
+                    <p class="text-sm text-[var(--text-muted)] leading-relaxed">Context-aware LLM assistant explaining <em>why</em> code is dangerous and providing remediation steps.</p>
+                </div>
+
+                <div class="cyber-card p-8 group">
+                    <div class="w-12 h-12 bg-pink-500/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-pink-500 transition-colors duration-300">
+                        <i class="fa-solid fa-file-pdf text-2xl text-pink-500 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-[var(--text-main)]">Forensic Reports</h3>
+                    <p class="text-sm text-[var(--text-muted)] leading-relaxed">Generate standardized PDF reports containing file hashes, risk scores, code evidence, and AI insights.</p>
+                </div>
+
+                <div class="cyber-card p-8 group">
+                    <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-blue-500 transition-colors duration-300">
+                        <i class="fa-solid fa-virus text-2xl text-blue-500 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-[var(--text-main)]">VirusTotal Sync</h3>
+                    <p class="text-sm text-[var(--text-muted)] leading-relaxed">Real-time hash lookup against 70+ antivirus engines to confirm global malicious reputation.</p>
+                </div>
+
+                <div class="cyber-card p-8 group">
+                    <div class="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-emerald-500 transition-colors duration-300">
+                        <i class="fa-solid fa-image text-2xl text-emerald-500 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-[var(--text-main)]">Stego Analysis</h3>
+                    <p class="text-sm text-[var(--text-muted)] leading-relaxed">Detects hidden payloads inside images using LSB analysis and metadata extraction algorithms.</p>
+                </div>
+
+                <div class="cyber-card p-8 group border-[var(--danger-red)]/20">
+                    <div class="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center mb-6 group-hover:bg-orange-500 transition-colors duration-300">
+                        <i class="fa-solid fa-network-wired text-2xl text-orange-500 group-hover:text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-[var(--text-main)]">Network Forensics</h3>
+                    <p class="text-sm text-[var(--text-muted)] leading-relaxed">Parses PCAP files to identify C2 beacons, suspicious ports, and unencrypted data streams.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-8 border-t border-[var(--border-tech)] bg-[var(--bg-deep)] transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-[var(--cyber-cyan)]"></i>
+                <span class="text-xs font-bold tracking-[2px] uppercase text-[var(--text-muted)]">CyberSentinel AI</span>
+            </div>
+            
+            <p class="text-[10px] text-[var(--text-muted)]">
+                © 2025 Neural Forensic Lab • All Rights Reserved
             </p>
+
+            <div class="flex gap-6">
+                <a href="#" class="text-[var(--text-muted)] hover:text-[var(--cyber-cyan)] transition"><i class="fab fa-github"></i></a>
+                <a href="#" class="text-[var(--text-muted)] hover:text-[var(--cyber-cyan)] transition"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-[var(--text-muted)] hover:text-[var(--cyber-cyan)] transition"><i class="fab fa-linkedin"></i></a>
+            </div>
         </div>
     </footer>
-    <script src="app.js"></script>
+
     <script>
-        // Smooth scrolling for anchor links
+
+        // 1. THEME ENGINE
+        const toggleBtn = document.getElementById('themeToggle');
+        const icon = toggleBtn.querySelector('i');
+        const html = document.documentElement;
+
+        // Check Local Storage
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+
+        toggleBtn.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        });
+
+        function applyTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        // 2. TYPEWRITER EFFECT
+        const terminalText = [
+            "> Initializing CyberSentinel Core...",
+            "> Loading Threat Database (v6.0)...",
+            "> <span style='color:var(--cyber-cyan)'>[SUCCESS]</span> 150+ Signatures Loaded.",
+            "> <span style='color:var(--cyber-cyan)'>[SUCCESS]</span> Radar Visualization Ready.",
+            "> Scanning network traffic...",
+            "> <span style='color:var(--danger-red)'>[ALERT]</span> Suspicious pattern detected: T1059",
+            "> Analyzing payload structure...",
+            "> Generating forensic report...",
+            "> <span class='blink'>_</span>"
+        ];
+
+        let lineIndex = 0;
+        const typeBox = document.getElementById('typewriter');
+
+        function typeWriter() {
+            if (lineIndex < terminalText.length) {
+                const p = document.createElement('div');
+                p.innerHTML = terminalText[lineIndex];
+                p.style.opacity = 0;
+                p.style.transform = "translateX(-10px)";
+                p.style.transition = "all 0.3s ease";
+                typeBox.appendChild(p);
+                
+                // Trigger animation
+                setTimeout(() => {
+                    p.style.opacity = 1;
+                    p.style.transform = "translateX(0)";
+                }, 50);
+
+                lineIndex++;
+                setTimeout(typeWriter, 800); // Speed of typing
+            }
+        }
+        
+        // Start typing after short delay
+        setTimeout(typeWriter, 1000);
+
+        // 3. SMOOTH SCROLL
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -317,5 +465,4 @@
         });
     </script>
 </body>
-
 </html>
