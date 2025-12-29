@@ -7,9 +7,44 @@ from typing import List
 # ENVIRONMENT CONFIGURATION
 # =====================================================
 api_key = os.environ.get("GEMINI_API_KEY")
+FAIL_SAFE_REPORT = """
+### ⚠️ AI Analysis Unavailable (Offline Mode)
+
+**Reason:** No Google Gemini API Key configured or Network Error.
+
+**Manual Analysis Required:**
+1.  **Check the MITRE Matrix:** Look at the mapped TTPs in the dashboard.
+2.  **Review Raw Behaviors:** The static analyzer has identified specific threats above.
+3.  **Inspect Source:** Look for `eval()`, `exec()`, base64 strings, or network sockets.
+
+*To enable AI insights, add `GEMINI_API_KEY` to your environment variables.*
+"""
 if not api_key:
     print("WARNING: GEMINI_API_KEY not found in environment variables. AI features will fail.")
 
+# =====================================================
+# 🔥 SAFETY SETTINGS (PREVENT BLOCKING)
+# =====================================================
+# We explicitly allow "Dangerous Content" because this tool is 
+# DESIGNED to analyze malware. Without this, Gemini blocks the request.
+SAFETY_SETTINGS = [
+    types.SafetySetting(
+        category="HARM_CATEGORY_HARASSMENT",
+        threshold="BLOCK_NONE"
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_HATE_SPEECH",
+        threshold="BLOCK_NONE"
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        threshold="BLOCK_NONE"
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+        threshold="BLOCK_NONE"
+    ),
+]
 # =====================================================
 # MODEL LIST (PRIORITY ORDER – UNCHANGED)
 # =====================================================
@@ -58,12 +93,7 @@ ALL_MODELS = [
     'gemini-2.5-computer-use-preview-10-2025',
     'nano-banana-pro-preview'
 ]
-SAFETY_SETTINGS = [
-    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
-]
+
 # =====================================================
 # SYSTEM INSTRUCTION (SOC ROLE)
 # =====================================================
@@ -105,14 +135,7 @@ Do NOT provide code corrections. Focus solely on threat analysis.
 """
 
 
-# 🔥 SAFETY SETTINGS TO PREVENT TRUNCATION/BLOCKING
-# This allows the model to discuss malware/threats for research purposes
-SAFETY_SETTINGS = [
-    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
-]
+
 # =====================================================
 # THREAT REPORT GENERATOR
 # =====================================================
@@ -124,7 +147,7 @@ def generate_explanation(
     """Sends behaviors AND extracted context (strings) to Google Gemini."""
 
     if not api_key:
-        return "AI Analysis unavailable: API key missing."
+        return FAIL_SAFE_REPORT#"AI Analysis unavailable: API key missing."
 
     # Do NOT quit if behaviors are empty – context may exist
     if not behaviors and not yara_hits and not context_text:
