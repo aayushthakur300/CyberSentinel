@@ -7,44 +7,9 @@ from typing import List
 # ENVIRONMENT CONFIGURATION
 # =====================================================
 api_key = os.environ.get("GEMINI_API_KEY")
-FAIL_SAFE_REPORT = """
-### ⚠️ AI Analysis Unavailable (Offline Mode)
-
-**Reason:** No Google Gemini API Key configured or Network Error.
-
-**Manual Analysis Required:**
-1.  **Check the MITRE Matrix:** Look at the mapped TTPs in the dashboard.
-2.  **Review Raw Behaviors:** The static analyzer has identified specific threats above.
-3.  **Inspect Source:** Look for `eval()`, `exec()`, base64 strings, or network sockets.
-
-*To enable AI insights, add `GEMINI_API_KEY` to your environment variables.*
-"""
 if not api_key:
     print("WARNING: GEMINI_API_KEY not found in environment variables. AI features will fail.")
 
-# =====================================================
-# 🔥 SAFETY SETTINGS (PREVENT BLOCKING)
-# =====================================================
-# We explicitly allow "Dangerous Content" because this tool is 
-# DESIGNED to analyze malware. Without this, Gemini blocks the request.
-SAFETY_SETTINGS = [
-    types.SafetySetting(
-        category="HARM_CATEGORY_HARASSMENT",
-        threshold="BLOCK_NONE"
-    ),
-    types.SafetySetting(
-        category="HARM_CATEGORY_HATE_SPEECH",
-        threshold="BLOCK_NONE"
-    ),
-    types.SafetySetting(
-        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        threshold="BLOCK_NONE"
-    ),
-    types.SafetySetting(
-        category="HARM_CATEGORY_DANGEROUS_CONTENT",
-        threshold="BLOCK_NONE"
-    ),
-]
 # =====================================================
 # MODEL LIST (PRIORITY ORDER – UNCHANGED)
 # =====================================================
@@ -94,6 +59,13 @@ ALL_MODELS = [
     'nano-banana-pro-preview'
 ]
 
+SAFETY_SETTINGS = [
+    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+]
+
 # =====================================================
 # SYSTEM INSTRUCTION (SOC ROLE)
 # =====================================================
@@ -134,8 +106,6 @@ Task: Generate a Threat Analysis Report covering:
 Do NOT provide code corrections. Focus solely on threat analysis.
 """
 
-
-
 # =====================================================
 # THREAT REPORT GENERATOR
 # =====================================================
@@ -147,15 +117,13 @@ def generate_explanation(
     """Sends behaviors AND extracted context (strings) to Google Gemini."""
 
     if not api_key:
-        return FAIL_SAFE_REPORT#"AI Analysis unavailable: API key missing."
+        return "AI Analysis unavailable: API key missing."
 
-    # Do NOT quit if behaviors are empty – context may exist
     if not behaviors and not yara_hits and not context_text:
         return "AI Analysis unavailable: No data to analyze."
 
     client = genai.Client(api_key=api_key)
 
-    # Combine indicators
     combined_indicators = behaviors + [f"YARA Match: {hit}" for hit in yara_hits]
 
     if not combined_indicators:
@@ -163,16 +131,13 @@ def generate_explanation(
     else:
         behaviors_text = "\n- " + "\n- ".join(combined_indicators)
 
-    # Context truncation safety
     context_preview = context_text[:3000] if context_text else "No context provided."
 
-    # Build full prompt
     full_prompt = USER_PROMPT_TEMPLATE.format(
         behaviors_list=behaviors_text,
         context_preview=context_preview
     )
 
-    # Iterate through all models (fallback-safe)
     for model_name in ALL_MODELS:
         try:
             response = client.models.generate_content(
@@ -212,8 +177,6 @@ def chat_with_ai(code_snippet: str, user_question: str) -> str:
         return "AI Chat unavailable: API Key missing."
 
     client = genai.Client(api_key=api_key)
-    # 🔥 SAFETY SETTINGS TO PREVENT TRUNCATION/BLOCKING
-# This allows the model to discuss malware/threats for research purposes
 
     chat_prompt = f"""
 ### 🛡️ SYSTEM ROLE: CYBERSENTINEL ELITE ANALYST
@@ -257,6 +220,7 @@ The user is investigating the following code snippet:
             continue
 
     return "Chat Error: All AI models failed. Check API quota or network."
+
 
 
 
