@@ -58,7 +58,12 @@ ALL_MODELS = [
     'gemini-2.5-computer-use-preview-10-2025',
     'nano-banana-pro-preview'
 ]
-
+SAFETY_SETTINGS = [
+    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+]
 # =====================================================
 # SYSTEM INSTRUCTION (SOC ROLE)
 # =====================================================
@@ -173,14 +178,7 @@ def generate_explanation(
 
     return "CRITICAL ERROR: All AI models failed. Check API quotas or network."
 
-# 🔥 SAFETY SETTINGS TO PREVENT TRUNCATION/BLOCKING
-# This allows the model to discuss malware/threats for research purposes
-SAFETY_SETTINGS = [
-    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
-]
+
 # =====================================================
 # INTERACTIVE CHAT ANALYSIS (REVERSE ENGINEERING MODE)
 # =====================================================
@@ -191,6 +189,8 @@ def chat_with_ai(code_snippet: str, user_question: str) -> str:
         return "AI Chat unavailable: API Key missing."
 
     client = genai.Client(api_key=api_key)
+    # 🔥 SAFETY SETTINGS TO PREVENT TRUNCATION/BLOCKING
+# This allows the model to discuss malware/threats for research purposes
 
     chat_prompt = f"""
 ### 🛡️ SYSTEM ROLE: CYBERSENTINEL ELITE ANALYST
