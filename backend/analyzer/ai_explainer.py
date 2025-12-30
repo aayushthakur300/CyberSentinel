@@ -7,9 +7,44 @@ from typing import List
 # ENVIRONMENT CONFIGURATION
 # =====================================================
 api_key = os.environ.get("GEMINI_API_KEY")
+FAIL_SAFE_REPORT = """
+### ⚠️ AI Analysis Unavailable (Fail-Safe Mode)
+
+**Reason:** No Google Gemini API Key configured or Network Error.
+
+**Manual Analysis Required:**
+1.  **Check the MITRE Matrix:** Look at the mapped TTPs in the dashboard.
+2.  **Review Raw Behaviors:** The static analyzer has identified specific threats above.
+3.  **Inspect Source:** Look for `eval()`, `exec()`, base64 strings, or network sockets.
+
+*To enable AI insights, add `GEMINI_API_KEY` to your environment variables.*
+"""
 if not api_key:
     print("WARNING: GEMINI_API_KEY not found in environment variables. AI features will fail.")
 
+# =====================================================
+# 🔥 SAFETY SETTINGS (PREVENT BLOCKING)
+# =====================================================
+# Explicitly allowing "Dangerous Content" is required for Malware Analysis tools.
+# Otherwise, Gemini will refuse to analyze malicious code snippets.
+SAFETY_SETTINGS = [
+    types.SafetySetting(
+        category="HARM_CATEGORY_HARASSMENT",
+        threshold="BLOCK_NONE"
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_HATE_SPEECH",
+        threshold="BLOCK_NONE"
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        threshold="BLOCK_NONE"
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+        threshold="BLOCK_NONE"
+    ),
+]
 # =====================================================
 # MODEL LIST (PRIORITY ORDER – UNCHANGED)
 # =====================================================
@@ -57,13 +92,6 @@ ALL_MODELS = [
     'gemini-robotics-er-1.5-preview',
     'gemini-2.5-computer-use-preview-10-2025',
     'nano-banana-pro-preview'
-]
-
-SAFETY_SETTINGS = [
-    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
 ]
 
 # =====================================================
@@ -152,20 +180,22 @@ def generate_explanation(
                         ]
                     )
                 ],
+                # 🔥 KEY FIX: Pass Safety Settings HERE inside the config
                 config=types.GenerateContentConfig(
+                    safety_settings=SAFETY_SETTINGS,
                     temperature=0.4,
                     max_output_tokens=1500
                 )
             )
 
-            print(f"SUCCESS: Analysis generated using {model_name}")
+            print(f"[AI] SUCCESS: Analysis generated using {model_name}")
             return response.text
 
         except Exception:
+            print(f"[AI] WARNING: Model {model_name} failed ({str(e)}). Trying next...")
             continue
 
-    return "CRITICAL ERROR: All AI models failed. Check API quotas or network."
-
+    return FAIL_SAFE_REPORT
 
 # =====================================================
 # INTERACTIVE CHAT ANALYSIS (REVERSE ENGINEERING MODE)
@@ -207,7 +237,9 @@ The user is investigating the following code snippet:
                         parts=[types.Part.from_text(text=chat_prompt)]
                     )
                 ],
+                # 🔥 KEY FIX: Pass Safety Settings HERE inside the config
                 config=types.GenerateContentConfig(
+                    safety_settings=SAFETY_SETTINGS,
                     temperature=0.5,
                     max_output_tokens=2048,
                     top_p=0.9,
